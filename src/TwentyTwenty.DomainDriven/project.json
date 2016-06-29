@@ -1,0 +1,33 @@
+﻿{
+  "version": "1.0.0-*",
+  "title": "20|20 DomainDriven",
+  "description": "DomainDriven CQRS Event Sourcing Abstractions",
+  "authors": [ "2020IP" ],
+  "packOptions": {
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/2020IP/TwentyTwenty.DomainDriven"
+    },
+    "iconUrl": "https://avatars3.githubusercontent.com/u/15891935?v=3&s=64",
+    "tags": [ "DomainDriven Domain Driven Design CQRS Event Sourcing EventSourcing TwentyTwenty 2020" ],
+    "projectUrl": "https://github.com/2020IP/TwentyTwenty.DomainDriven",
+    "licenseUrl": "https://raw.githubusercontent.com/2020IP/TwentyTwenty.DomainDriven/master/LICENSE.txt"
+  },
+  "tooling": {
+    "defaultNamespace": "TwentyTwenty.DomainDriven"
+  },
+  "frameworks": {
+    "net451": {},
+    "netstandard1.3": {
+      "dependencies": {
+        "System.Runtime": "4.1.0",
+        "System.Linq": "4.1.0",
+        "System.Runtime.InteropServices": "4.1.0",
+        "System.Linq.Expressions": "4.1.0",
+        "System.Reflection.TypeExtensions": "4.1.0",
+        "System.Collections": "4.0.11",
+        "System.Collections.Concurrent": "4.0.12"
+      }
+    }
+  }
+}
