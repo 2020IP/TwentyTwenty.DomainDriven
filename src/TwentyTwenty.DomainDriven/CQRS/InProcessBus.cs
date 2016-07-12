@@ -19,7 +19,7 @@ namespace TwentyTwenty.DomainDriven.CQRS
             handlers.Add((x => handler((T)x)));
         }
 
-        public Task Send<T>(T command) where T : class, ICommand
+        Task ICommandSender.Send<T>(T command)
         {
             List<Action<IMessage>> handlers;
             if (_routes.TryGetValue(typeof(T), out handlers))
@@ -51,6 +51,21 @@ namespace TwentyTwenty.DomainDriven.CQRS
             }
 
             return Task.FromResult(false);
+        }
+
+        Task IEventPublisher.Send<T>(T @event)
+        {
+            List<Action<IMessage>> handlers;
+            if (_routes.TryGetValue(typeof(T), out handlers))
+            {
+                handlers[0](@event);
+
+                return Task.FromResult(false);
+            }
+            else
+            {
+                throw new InvalidOperationException("No handler registered");
+            }
         }
     }
 }
