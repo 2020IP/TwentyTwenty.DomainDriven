@@ -5,7 +5,7 @@ namespace TwentyTwenty.DomainDriven
 {
     public abstract class Entity<TId> : IEquatable<Entity<TId>>
     {
-        public virtual TId Id { get; protected set; }
+        public virtual TId Id { get; set; }
 
         public bool Equals(Entity<TId> other)
         {
