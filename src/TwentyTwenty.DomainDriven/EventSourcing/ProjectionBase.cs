@@ -24,6 +24,11 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
             };
         }
 
+        public IEnumerable<Type> GetConsumeEvents()
+        {
+            return _handlers.Keys;
+        }
+
         public void ApplyEvents(IEnumerable<IDomainEvent> events)
         {
             Action<IDomainEvent> action;
