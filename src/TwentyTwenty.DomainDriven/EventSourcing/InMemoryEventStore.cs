@@ -90,5 +90,11 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
             SaveEvents(aggregateId, events, expectedVersion);
             return Task.FromResult(false);
         }
+
+        public Task<List<IEventDescriptor>> GetEventsForAggregateAsync(Guid aggregateId)
+        {
+            var events = GetEventsForAggregate(aggregateId);
+            return Task.FromResult(events);
+        }
     }
 }

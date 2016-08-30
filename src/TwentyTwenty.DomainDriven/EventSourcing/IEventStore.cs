@@ -11,5 +11,7 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
         Task SaveEventsAsync(Guid aggregateId, IEnumerable<IDomainEvent> events, int? expectedVersion = default(int?));
 
         List<IEventDescriptor> GetEventsForAggregate(Guid aggregateId);
+
+        Task<List<IEventDescriptor>> GetEventsForAggregateAsync(Guid aggregateId);
     }
 }
