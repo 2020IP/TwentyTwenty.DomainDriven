@@ -36,6 +36,11 @@ namespace TwentyTwenty.DomainDriven.CQRS
             }
         }
 
+        public Task Send(ICommand command, Type commandType)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task Publish<T>(T @event) where T : class, IDomainEvent
         {
             List<Action<IMessage>> handlers;
@@ -51,6 +56,11 @@ namespace TwentyTwenty.DomainDriven.CQRS
             }
 
             return Task.FromResult(false);
+        }
+
+        public Task Publish(IDomainEvent @event, Type eventType)
+        {
+            throw new NotImplementedException();
         }
     }
 }

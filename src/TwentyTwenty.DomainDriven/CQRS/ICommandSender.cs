@@ -1,9 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace TwentyTwenty.DomainDriven.CQRS
 {
     public interface ICommandSender
     {
         Task Send<T>(T command) where T : class, ICommand;
+
+        Task Send(ICommand command, Type commandType);
     }
 }
