@@ -8,6 +8,8 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
 
         int Version { get; }
 
+        DateTime TimeStamp { get; }
+
         IDomainEvent Data { get; }
     }
 }
