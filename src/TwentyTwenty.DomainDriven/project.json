@@ -1,5 +1,5 @@
 ﻿{
-  "version": "1.1.2-*",
+  "version": "1.2.0-*",
   "title": "20|20 DomainDriven",
   "description": "DomainDriven CQRS Event Sourcing Abstractions",
   "authors": [ "2020IP" ],
