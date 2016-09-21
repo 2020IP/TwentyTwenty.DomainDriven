@@ -9,7 +9,7 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
     {
         private readonly IEventPublisher _publisher;
 
-        private class EventDescriptor : IEventDescriptor
+        private class EventDescriptor
         {
             public EventDescriptor(Guid id, IDomainEvent eventData, int version)
             {

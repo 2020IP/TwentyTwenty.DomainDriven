@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 
 namespace TwentyTwenty.DomainDriven
@@ -34,6 +35,33 @@ namespace TwentyTwenty.DomainDriven
             var method = objType.GetDeclaredMethod(methodName);
             var genericMethod = method.MakeGenericMethod(typeParams);
             return genericMethod.Invoke(obj, parameters);
+        }
+
+        public static bool IsAssignableFromGeneric(this Type genericType, Type givenType)
+        {
+            var interfaceTypes = givenType.GetInterfaces()
+                .Select(t => t.GetTypeInfo());
+
+            foreach (var it in interfaceTypes)
+            {
+                if (it.IsGenericType && it.GetGenericTypeDefinition() == genericType)
+                {
+                    return true;
+                }
+            }
+
+            if (givenType.GetTypeInfo().IsGenericType && givenType.GetGenericTypeDefinition() == genericType)
+            {
+                return true;
+            }
+
+            var baseType = givenType.GetTypeInfo().BaseType;
+            if (baseType == null)
+            {
+                return false;
+            }
+
+            return IsAssignableFromGeneric(genericType, baseType);
         }
     }
 }

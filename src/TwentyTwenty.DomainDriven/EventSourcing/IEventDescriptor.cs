@@ -12,4 +12,16 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
 
         IDomainEvent Data { get; }
     }
+
+    public interface IEventDescriptor<TEvent> : IEventDescriptor
+        where TEvent : IDomainEvent
+    {
+        new TEvent Data { get; }        
+    }
+
+    public interface ICanApply 
+    {
+        void Apply<TProjection>(TProjection state, IProjectionStepCache<TProjection> cache)
+            where TProjection : class, IProjection;
+    }
 }
