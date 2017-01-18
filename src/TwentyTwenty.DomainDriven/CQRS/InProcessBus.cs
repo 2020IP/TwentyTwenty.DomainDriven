@@ -19,10 +19,13 @@ namespace TwentyTwenty.DomainDriven.CQRS
             handlers.Add((x => handler((T)x)));
         }
 
-        public Task Send<T>(T command) where T : class, ICommand
+        public Task Send(ICommand command)
+            => Send(command, command.GetType());
+
+        public Task Send(ICommand command, Type commandType)
         {
             List<Action<IMessage>> handlers;
-            if (_routes.TryGetValue(typeof(T), out handlers))
+            if (_routes.TryGetValue(commandType, out handlers))
             {
                 if (handlers.Count != 1)
                     throw new InvalidOperationException("Cannot send to more than one handler");
@@ -36,15 +39,13 @@ namespace TwentyTwenty.DomainDriven.CQRS
             }
         }
 
-        public Task Send(ICommand command, Type commandType)
-        {
-            throw new NotImplementedException();
-        }
+        public Task Publish(IDomainEvent @event)
+            => Publish(@event, @event.GetType());
 
-        public Task Publish<T>(T @event) where T : class, IDomainEvent
+        public Task Publish(IDomainEvent @event, Type eventType)
         {
             List<Action<IMessage>> handlers;
-            if (!_routes.TryGetValue(@event.GetType(), out handlers))
+            if (!_routes.TryGetValue(eventType, out handlers))
             {
                 return Task.FromResult(false);
             }
@@ -56,11 +57,6 @@ namespace TwentyTwenty.DomainDriven.CQRS
             }
 
             return Task.FromResult(false);
-        }
-
-        public Task Publish(IDomainEvent @event, Type eventType)
-        {
-            throw new NotImplementedException();
         }
     }
 }
