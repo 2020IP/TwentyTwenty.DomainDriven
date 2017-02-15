@@ -12,8 +12,8 @@ namespace TwentyTwenty.DomainDriven.CQRS
 
     public interface ICommandSenderReceiver
     {
-        Task<TResult> Send<T, TResult>(T command)
-            where T : class, ICommand
-            where TResult : class, IResponse;
+        Task<TResult> Send<TResult>(ICommand command) where TResult : class, IResponse;
+
+        Task<TResult> Send<TResult>(ICommand command, Type commandType) where TResult : class, IResponse;
     }
 }
