@@ -3,22 +3,21 @@ using System.Collections.Generic;
 
 namespace TwentyTwenty.DomainDriven.EventPublishing
 {
-    public abstract class EventPublishingAggregateRoot<TAggregate> : Entity<Guid>, IAggregateRoot<Guid>
-        where TAggregate : EventPublishingAggregateRoot<TAggregate>
+    public abstract class EventPublishingAggregateRoot<TId> : Entity<TId>, IEventPublishingAggregateRoot<TId>
     {
-        private readonly List<IDomainEvent> _changes = new List<IDomainEvent>();
+        protected readonly List<IDomainEvent> _changes = new List<IDomainEvent>();
 
-        public IEnumerable<IDomainEvent> GetUnpublishedEvents()
+        public virtual IEnumerable<IDomainEvent> GetUnpublishedEvents()
         {
             return _changes;
         }
 
-        public void MarkEventsAsPublished()
+        public virtual void MarkEventsAsPublished()
         {
             _changes.Clear();
         }
 
-        protected void AddEvent(IDomainEvent @event)
+        protected virtual void AddEvent(IDomainEvent @event)
         {
             _changes.Add(@event);
         }

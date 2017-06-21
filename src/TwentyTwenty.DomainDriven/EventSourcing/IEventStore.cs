@@ -4,14 +4,14 @@ using System.Threading.Tasks;
 
 namespace TwentyTwenty.DomainDriven.EventSourcing
 {
-    public interface IEventStore
+    public interface IEventStore<TId>
     {
-        void SaveEvents(Guid aggregateId, IEnumerable<IDomainEvent> events, int? expectedVersion = null);
+        void SaveEvents(TId aggregateId, IEnumerable<IDomainEvent> events, int? expectedVersion = null);
 
-        Task SaveEventsAsync(Guid aggregateId, IEnumerable<IDomainEvent> events, int? expectedVersion = default(int?));
+        Task SaveEventsAsync(TId aggregateId, IEnumerable<IDomainEvent> events, int? expectedVersion = default(int?));
 
-        List<IEventDescriptor> GetEventsForAggregate(Guid aggregateId);
+        List<IEventDescriptor> GetEventsForAggregate(TId aggregateId);
 
-        Task<List<IEventDescriptor>> GetEventsForAggregateAsync(Guid aggregateId);
+        Task<List<IEventDescriptor>> GetEventsForAggregateAsync(TId aggregateId);
     }
 }

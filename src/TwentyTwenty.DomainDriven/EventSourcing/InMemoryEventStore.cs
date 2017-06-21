@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 
 namespace TwentyTwenty.DomainDriven.EventSourcing
 {
-    public class InMemoryEventStore : IEventStore
+    public class InMemoryEventStore<TId> : IEventStore<TId>
     {
         private readonly IEventPublisher _publisher;
 
         private class EventDescriptor
         {
-            public EventDescriptor(Guid id, IDomainEvent eventData, int version)
+            public EventDescriptor(TId id, IDomainEvent eventData, int version)
             {
                 Data = eventData;
                 Version = version;
@@ -22,7 +22,7 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
 
             public DateTime TimeStamp { get; set; }
 
-            public Guid Id { get; }
+            public TId Id { get; }
 
             public int Version { get; }
         }
@@ -32,9 +32,9 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
             _publisher = publisher;
         }
 
-        private readonly Dictionary<Guid, List<EventDescriptor>> _current = new Dictionary<Guid, List<EventDescriptor>>();
+        private readonly Dictionary<TId, List<EventDescriptor>> _current = new Dictionary<TId, List<EventDescriptor>>();
 
-        public void SaveEvents(Guid aggregateId, IEnumerable<IDomainEvent> events, int? expectedVersion = null)
+        public void SaveEvents(TId aggregateId, IEnumerable<IDomainEvent> events, int? expectedVersion = null)
         {
             List<EventDescriptor> eventDescriptors;
 
@@ -71,7 +71,7 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
 
         // collect all processed events for given aggregate and return them as a list
         // used to build up an aggregate from its history (Domain.LoadsFromHistory)
-        public  List<IEventDescriptor> GetEventsForAggregate(Guid aggregateId)
+        public  List<IEventDescriptor> GetEventsForAggregate(TId aggregateId)
         {
             List<EventDescriptor> eventDescriptors;
 
@@ -85,13 +85,13 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
                 .ToList();
         }
 
-        public Task SaveEventsAsync(Guid aggregateId, IEnumerable<IDomainEvent> events, int? expectedVersion = default(int?))
+        public Task SaveEventsAsync(TId aggregateId, IEnumerable<IDomainEvent> events, int? expectedVersion = default(int?))
         {
             SaveEvents(aggregateId, events, expectedVersion);
             return Task.FromResult(false);
         }
 
-        public Task<List<IEventDescriptor>> GetEventsForAggregateAsync(Guid aggregateId)
+        public Task<List<IEventDescriptor>> GetEventsForAggregateAsync(TId aggregateId)
         {
             var events = GetEventsForAggregate(aggregateId);
             return Task.FromResult(events);
