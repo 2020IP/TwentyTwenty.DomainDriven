@@ -211,3 +211,6 @@ FakesAssemblies/
 # NuGet exe
 .nuget
 .build/
+
+# cake
+tools/

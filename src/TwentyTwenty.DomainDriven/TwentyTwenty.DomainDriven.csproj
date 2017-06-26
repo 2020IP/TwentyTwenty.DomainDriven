@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>TwentyTwenty.DomainDriven Class Library</Description>
+    <Authors>Jarrod Alexander, Eric Green</Authors>
+    <!--<TargetFramework>netstandard1.3;net452</TargetFramework>-->
+    <TargetFramework>netstandard1.3</TargetFramework>
+    <AssemblyName>TwentyTwenty.DomainDriven</AssemblyName>
+    <PackageId>TwentyTwenty.DomainDriven</PackageId>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.3'">
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
+  </ItemGroup>
+
+</Project>
