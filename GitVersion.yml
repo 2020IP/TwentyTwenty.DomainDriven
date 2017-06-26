@@ -1,7 +1,6 @@
 next-version: 2.0.0
 branches:
   dev(elop)?(ment)?$:
-    mode: ContinuousDelivery
     tag: ci
     prevent-increment-of-merged-branch-version: true
     track-merge-target: false
