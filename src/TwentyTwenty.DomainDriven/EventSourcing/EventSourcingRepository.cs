@@ -19,7 +19,7 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
         }
 
         public void Save<T>(T aggregate, int? expectedVersion = null) 
-            where T : IEventSourcingAggregateRoot<TId>, new()
+            where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
             var changes = aggregate.GetUnpublishedEvents();
             _eventStore.SaveEvents(aggregate.Id, changes, expectedVersion);
@@ -27,14 +27,14 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
         }
 
         public T GetById<T>(TId id) 
-            where T : IEventSourcingAggregateRoot<TId>, new()
+            where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
             var events = _eventStore.GetEventsForAggregate(id);
             return Replay<T>(events);
         }
 
         public async Task SaveAsync<T>(T aggregate, int? expectedVersion = default(int?)) 
-            where T : IEventSourcingAggregateRoot<TId>, new()
+            where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
             var changes = aggregate.GetUnpublishedEvents();
             await _eventStore.SaveEventsAsync(aggregate.Id, changes, expectedVersion);
@@ -42,7 +42,7 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
         }
 
         public async Task<T> GetByIdAsync<T>(TId id) 
-            where T : IEventSourcingAggregateRoot<TId>, new()
+            where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
             var events = await _eventStore.GetEventsForAggregateAsync(id);            
             return Replay<T>(events);
