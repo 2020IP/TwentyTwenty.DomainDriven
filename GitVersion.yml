@@ -3,7 +3,6 @@ branches:
   dev(elop)?(ment)?$:
     mode: ContinuousDelivery
     tag: ci
-    increment: Patch
     prevent-increment-of-merged-branch-version: true
     track-merge-target: false
 ignore:
