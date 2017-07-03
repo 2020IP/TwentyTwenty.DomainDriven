@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>TwentyTwenty.DomainDriven.Marten Class Library</Description>
+    <Authors>Jarrod Alexander, Eric Green</Authors>
+    <TargetFrameworks>netstandard1.3</TargetFrameworks>
+    <AssemblyName>TwentyTwenty.DomainDriven.Marten</AssemblyName>
+    <PackageId>TwentyTwenty.DomainDriven.Marten</PackageId>
+    <VersionPrefix>$(SemVer)</VersionPrefix>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TwentyTwenty.DomainDriven\TwentyTwenty.DomainDriven.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>    
+    <PackageReference Include="Marten" Version="1.5.2" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.3'">
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
+  </ItemGroup>
+
+</Project>

@@ -56,6 +56,7 @@ Task("Package")
         };
 
         DotNetCorePack("src/TwentyTwenty.DomainDriven/", settings);
+        DotNetCorePack("src/TwentyTwenty.DomainDriven.Marten/", settings);
 
         if (AppVeyor.IsRunningOnAppVeyor)
         {
