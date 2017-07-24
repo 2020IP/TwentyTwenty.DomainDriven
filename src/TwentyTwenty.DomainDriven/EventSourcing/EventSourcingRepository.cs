@@ -26,11 +26,13 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
             aggregate.MarkEventsAsPublished();
         }
 
-        public T GetById<T>(TId id) 
+        public void Save<T>(params T[] aggregates)
             where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
-            var events = _eventStore.GetEventsForAggregate(id);
-            return Replay<T>(events);
+            foreach (var aggregate in aggregates.DefaultIfEmpty())
+            {
+                Save(aggregate);
+            }
         }
 
         public async Task SaveAsync<T>(T aggregate, int? expectedVersion = default(int?)) 
@@ -39,6 +41,22 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
             var changes = aggregate.GetUnpublishedEvents();
             await _eventStore.SaveEventsAsync(aggregate.Id, changes, expectedVersion);
             aggregate.MarkEventsAsPublished();;
+        }
+
+        public async Task SaveAsync<T>(params T[] aggregates)
+            where T : class, IEventSourcingAggregateRoot<TId>, new()
+        {
+            foreach (var aggregate in aggregates.DefaultIfEmpty())
+            {
+                await SaveAsync(aggregate);
+            }
+        }
+
+        public T GetById<T>(TId id) 
+            where T : class, IEventSourcingAggregateRoot<TId>, new()
+        {
+            var events = _eventStore.GetEventsForAggregate(id);
+            return Replay<T>(events);
         }
 
         public async Task<T> GetByIdAsync<T>(TId id) 

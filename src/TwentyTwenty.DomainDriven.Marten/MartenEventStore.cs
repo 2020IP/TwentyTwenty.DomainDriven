@@ -45,5 +45,16 @@ namespace TwentyTwenty.DomainDriven.Marten
             _session.Events.Append(aggregateId, events.ToArray());
             await _session.SaveChangesAsync().ConfigureAwait(false);
         }
+
+        public void AppendEvents(Guid aggregateId, params IDomainEvent[] events)
+        {
+            _session.Events.Append(aggregateId, events.ToArray());
+        }
+
+        public Task CommitEventsAsync()
+           =>  _session.SaveChangesAsync();
+
+        public void CommitEvents()
+            => _session.SaveChanges();
     }
 }

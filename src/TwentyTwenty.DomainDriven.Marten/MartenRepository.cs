@@ -41,5 +41,27 @@ namespace TwentyTwenty.DomainDriven.Marten
             
             aggregate.MarkEventsAsPublished();
         }
+
+        public void Save<T>(params T[] aggregates)
+            where T : class, IEventSourcingAggregateRoot<Guid>, new()
+        {
+            foreach (var aggregate in aggregates)
+            {
+                AppendEvents(aggregate.Id, aggregate.GetUnpublishedEvents().ToArray());                
+            }
+            
+            CommitEvents();
+        }
+
+        public Task SaveAsync<T>(params T[] aggregates)
+            where T : class, IEventSourcingAggregateRoot<Guid>, new()
+        {
+            foreach (var aggregate in aggregates)
+            {
+                AppendEvents(aggregate.Id, aggregate.GetUnpublishedEvents().ToArray());                
+            }
+            
+            return CommitEventsAsync();
+        }
     }
 }

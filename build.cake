@@ -4,7 +4,6 @@
 GitVersion versionInfo = null;
 var target = Argument("target", "Default");
 var outputDir = "./artifacts/";
-var publishDir = outputDir + "publish/";
 var configuration   = Argument("configuration", "Release");
 
 Task("Clean")

@@ -11,6 +11,12 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
         Task SaveAsync<T>(T aggregate, int? expectedVersion = null) 
             where T : class, IEventSourcingAggregateRoot<TId>, new();
 
+        void Save<T>(params T[] aggregates) 
+            where T : class, IEventSourcingAggregateRoot<TId>, new();
+        
+        Task SaveAsync<T>(params T[] aggregates) 
+            where T : class, IEventSourcingAggregateRoot<TId>, new();
+
         T GetById<T>(TId id) 
             where T : class, IEventSourcingAggregateRoot<TId>, new();
 
