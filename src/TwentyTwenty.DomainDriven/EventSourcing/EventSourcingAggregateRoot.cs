@@ -4,28 +4,17 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using TwentyTwenty.DomainDriven.EventPublishing;
 
 namespace TwentyTwenty.DomainDriven.EventSourcing
 {
-    public abstract class EventSourcingAggregateRoot<TAggregate> : Entity<Guid>, IAggregateRoot<Guid> 
-        where TAggregate : EventSourcingAggregateRoot<TAggregate>
+    public abstract class EventSourcingAggregateRoot<TAggregate, TId> : EventPublishingAggregateRoot<TId>, IEventSourcingAggregateRoot<TId>
+        where TAggregate : EventSourcingAggregateRoot<TAggregate, TId>
     {
         public const string ApplyMethod = "Apply";
         private static readonly ConcurrentDictionary<Type, ConcurrentDictionary<Type, object>> HandlerCache = 
             new ConcurrentDictionary<Type, ConcurrentDictionary<Type, object>>(); 
-        private readonly List<IDomainEvent> _changes = new List<IDomainEvent>();
-
         public int Version { get; protected set; }
-
-        public IEnumerable<IDomainEvent> GetUncommittedChanges()
-        {
-            return _changes;
-        }
-
-        public void MarkChangesAsCommitted()
-        {
-            _changes.Clear();
-        }
 
         public void LoadChangesFromHistory(IEnumerable<IDomainEvent> history)
         {
@@ -35,7 +24,7 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
             }
         }
 
-        protected void ApplyChange(IDomainEvent @event)
+        protected override void AddEvent(IDomainEvent @event)
         {
             ApplyChange(@event, true);
         }

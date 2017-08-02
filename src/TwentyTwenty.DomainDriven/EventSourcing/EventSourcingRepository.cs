@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 
 namespace TwentyTwenty.DomainDriven.EventSourcing
 {
-    public class EventSourcingRepository : IEventSourcingRepository
+    public class EventSourcingRepository<TId> : IEventSourcingRepository<TId>
     {
-        private readonly IEventStore _eventStore;
+        private readonly IEventStore<TId> _eventStore;
 
-        public EventSourcingRepository(IEventStore eventStore)
+        public EventSourcingRepository(IEventStore<TId> eventStore)
         {
             if (eventStore == null)
             {
@@ -18,33 +18,56 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
             _eventStore = eventStore;
         }
 
-        public void Save<T>(T aggregate, int? expectedVersion = null) where T : EventSourcingAggregateRoot<T>, new()
+        public void Save<T>(T aggregate, int? expectedVersion = null) 
+            where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
-            var changes = aggregate.GetUncommittedChanges();
+            var changes = aggregate.GetUnpublishedEvents();
             _eventStore.SaveEvents(aggregate.Id, changes, expectedVersion);
-            aggregate.MarkChangesAsCommitted();
+            aggregate.MarkEventsAsPublished();
         }
 
-        public T GetById<T>(Guid id) where T : EventSourcingAggregateRoot<T>, new()
+        public void Save<T>(params T[] aggregates)
+            where T : class, IEventSourcingAggregateRoot<TId>, new()
+        {
+            foreach (var aggregate in aggregates.DefaultIfEmpty())
+            {
+                Save(aggregate);
+            }
+        }
+
+        public async Task SaveAsync<T>(T aggregate, int? expectedVersion = default(int?)) 
+            where T : class, IEventSourcingAggregateRoot<TId>, new()
+        {
+            var changes = aggregate.GetUnpublishedEvents();
+            await _eventStore.SaveEventsAsync(aggregate.Id, changes, expectedVersion);
+            aggregate.MarkEventsAsPublished();;
+        }
+
+        public async Task SaveAsync<T>(params T[] aggregates)
+            where T : class, IEventSourcingAggregateRoot<TId>, new()
+        {
+            foreach (var aggregate in aggregates.DefaultIfEmpty())
+            {
+                await SaveAsync(aggregate);
+            }
+        }
+
+        public T GetById<T>(TId id) 
+            where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
             var events = _eventStore.GetEventsForAggregate(id);
             return Replay<T>(events);
         }
 
-        public async Task SaveAsync<T>(T aggregate, int? expectedVersion = default(int?)) where T : EventSourcingAggregateRoot<T>, new()
-        {
-            var changes = aggregate.GetUncommittedChanges();
-            await _eventStore.SaveEventsAsync(aggregate.Id, changes, expectedVersion);
-            aggregate.MarkChangesAsCommitted();
-        }
-
-        public async Task<T> GetByIdAsync<T>(Guid id) where T : EventSourcingAggregateRoot<T>, new()
+        public async Task<T> GetByIdAsync<T>(TId id) 
+            where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
             var events = await _eventStore.GetEventsForAggregateAsync(id);            
             return Replay<T>(events);
         }
 
-        private T Replay<T>(IEnumerable<IEventDescriptor> events) where T : EventSourcingAggregateRoot<T>, new()
+        private T Replay<T>(IEnumerable<IEventDescriptor> events) 
+            where T : IEventSourcingAggregateRoot<TId>, new()
         {
             var obj = new T();
 

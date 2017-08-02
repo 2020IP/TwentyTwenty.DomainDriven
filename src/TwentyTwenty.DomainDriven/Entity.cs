@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace TwentyTwenty.DomainDriven
 {
-    public abstract class Entity<TId> : IEquatable<Entity<TId>>
+    public abstract class Entity<TId> : IEntity<TId>
     {
         public virtual TId Id { get; set; }
 
-        public bool Equals(Entity<TId> other)
+        public bool Equals(IEntity<TId> other)
         {
             if (other == null)
             {
@@ -29,19 +29,30 @@ namespace TwentyTwenty.DomainDriven
         
         public override bool Equals(object obj)
         {
-            var compareTo = obj as Entity<TId>;
-            
-            if (ReferenceEquals(compareTo, null))
+            if (ReferenceEquals(obj, null))
             {
                 return false;                
             }
-            if (ReferenceEquals(this, compareTo))
+            if (ReferenceEquals(this, obj))
             {
                 return true;
             }
-            if (!IsTransient() && !compareTo.IsTransient() && EqualityComparer<TId>.Default.Equals(Id, compareTo.Id))
+
+            for (var compareTo = obj as Entity<TId>; compareTo != null;)
             {
-                return true;
+                if (!IsTransient() && !compareTo.IsTransient() && EqualityComparer<TId>.Default.Equals(Id, compareTo.Id))
+                {
+                    return true;
+                }
+                return false;
+            }
+
+            for (var compareTo = obj as IEntity<TId>; compareTo != null; compareTo = null)
+            {
+                if (!IsTransient() && EqualityComparer<TId>.Default.Equals(Id, compareTo.Id))
+                {
+                    return true;
+                }
             }
             
             return false;
