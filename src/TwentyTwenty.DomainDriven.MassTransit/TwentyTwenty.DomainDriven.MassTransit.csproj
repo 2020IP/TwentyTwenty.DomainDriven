@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>TwentyTwenty.DomainDriven.MassTransit Class Library</Description>
+    <Authors>Jarrod Alexander, Eric Green</Authors>
+    <TargetFrameworks>netstandard1.6</TargetFrameworks>
+    <AssemblyName>TwentyTwenty.DomainDriven.MassTransit</AssemblyName>
+    <PackageId>TwentyTwenty.DomainDriven.MassTransit</PackageId>
+    <VersionPrefix>$(SemVer)</VersionPrefix>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TwentyTwenty.DomainDriven\TwentyTwenty.DomainDriven.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="1.1.2" />
+    <PackageReference Include="MassTransit" Version="4.0.0.1228-develop" />
+    <PackageReference Include="MassTransit.RabbitMq" Version="4.0.0.1228-develop" />
+    <PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="4.0.0.1228-develop" />
+  </ItemGroup>
+</Project>

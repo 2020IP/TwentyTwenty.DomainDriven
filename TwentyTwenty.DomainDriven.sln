@@ -9,6 +9,8 @@ Project("{13B669BE-BB05-4DDF-9536-439F39A36129}") = "TwentyTwenty.DomainDriven",
 EndProject
 Project("{13B669BE-BB05-4DDF-9536-439F39A36129}") = "TwentyTwenty.DomainDriven.Marten", "src\TwentyTwenty.DomainDriven.Marten\TwentyTwenty.DomainDriven.Marten.csproj", "{97FEC6B7-2361-4EA9-B28A-37E36CD5DEA5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwentyTwenty.DomainDriven.MassTransit", "src\TwentyTwenty.DomainDriven.MassTransit\TwentyTwenty.DomainDriven.MassTransit.csproj", "{A5304D38-D202-4C1A-B38D-1B7171B8C254}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,9 +48,22 @@ Global
 		{97FEC6B7-2361-4EA9-B28A-37E36CD5DEA5}.Release|x64.Build.0 = Release|x64
 		{97FEC6B7-2361-4EA9-B28A-37E36CD5DEA5}.Release|x86.ActiveCfg = Release|x86
 		{97FEC6B7-2361-4EA9-B28A-37E36CD5DEA5}.Release|x86.Build.0 = Release|x86
+		{A5304D38-D202-4C1A-B38D-1B7171B8C254}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5304D38-D202-4C1A-B38D-1B7171B8C254}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5304D38-D202-4C1A-B38D-1B7171B8C254}.Debug|x64.ActiveCfg = Debug|x64
+		{A5304D38-D202-4C1A-B38D-1B7171B8C254}.Debug|x64.Build.0 = Debug|x64
+		{A5304D38-D202-4C1A-B38D-1B7171B8C254}.Debug|x86.ActiveCfg = Debug|x86
+		{A5304D38-D202-4C1A-B38D-1B7171B8C254}.Debug|x86.Build.0 = Debug|x86
+		{A5304D38-D202-4C1A-B38D-1B7171B8C254}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5304D38-D202-4C1A-B38D-1B7171B8C254}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5304D38-D202-4C1A-B38D-1B7171B8C254}.Release|x64.ActiveCfg = Release|x64
+		{A5304D38-D202-4C1A-B38D-1B7171B8C254}.Release|x64.Build.0 = Release|x64
+		{A5304D38-D202-4C1A-B38D-1B7171B8C254}.Release|x86.ActiveCfg = Release|x86
+		{A5304D38-D202-4C1A-B38D-1B7171B8C254}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{B5D22153-C58A-49AD-A3A6-AE1084DCE67D} = {8162C474-192C-4E0C-B713-965899689363}
 		{97FEC6B7-2361-4EA9-B28A-37E36CD5DEA5} = {8162C474-192C-4E0C-B713-965899689363}
+		{A5304D38-D202-4C1A-B38D-1B7171B8C254} = {8162C474-192C-4E0C-B713-965899689363}
 	EndGlobalSection
 EndGlobal
