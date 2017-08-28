@@ -8,12 +8,10 @@ namespace TwentyTwenty.DomainDriven.Marten
     public class MartenEventPublishingRepository : IEventPublishingRepository<Guid>
     {
         private readonly IDocumentSession _session;
-        private readonly IEventPublisher _publisher;
 
-        public MartenEventPublishingRepository(IDocumentSession session, IEventPublisher publisher)
+        public MartenEventPublishingRepository(IDocumentSession session)
         {
             _session = session;
-            _publisher = publisher;
         }
 
         public T Save<T>(T aggregate) 
