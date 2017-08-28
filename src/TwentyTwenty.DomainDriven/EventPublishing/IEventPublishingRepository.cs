@@ -3,14 +3,18 @@ using System.Threading.Tasks;
 
 namespace TwentyTwenty.DomainDriven.EventPublishing
 {
-    public interface IEventPublishingRepository
+    public interface IEventPublishingRepository<TId>
     {
-        T Save<T>(T entity) where T : EventPublishingAggregateRoot<T>, new();
+        T Save<T>(T entity) 
+            where T : class, IEventPublishingAggregateRoot<TId>, new();
 
-        Task<T> SaveAsync<T>(T entity) where T : EventPublishingAggregateRoot<T>, new();
+        Task<T> SaveAsync<T>(T entity) 
+            where T : class, IEventPublishingAggregateRoot<TId>, new();
 
-        T GetById<T>(Guid id) where T : EventPublishingAggregateRoot<T>, new();
+        T GetById<T>(TId id) 
+            where T : class, IEventPublishingAggregateRoot<TId>, new();
 
-        Task<T> GetByIdAsync<T>(Guid id) where T : EventPublishingAggregateRoot<T>, new();
+        Task<T> GetByIdAsync<T>(Guid id) 
+            where T : class, IEventPublishingAggregateRoot<TId>, new();
     }
 }
