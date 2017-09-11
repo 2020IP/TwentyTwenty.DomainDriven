@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Description>TwentyTwenty.DomainDriven.MassTransit Class Library</Description>
     <Authors>Jarrod Alexander, Eric Green</Authors>
-    <TargetFrameworks>netstandard1.6</TargetFrameworks>
+    <TargetFrameworks>netstandard1.6;net452</TargetFrameworks>
     <AssemblyName>TwentyTwenty.DomainDriven.MassTransit</AssemblyName>
     <PackageId>TwentyTwenty.DomainDriven.MassTransit</PackageId>
     <VersionPrefix>$(SemVer)</VersionPrefix>

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Description>TwentyTwenty.DomainDriven.Marten Class Library</Description>
     <Authors>Jarrod Alexander, Eric Green</Authors>
-    <TargetFrameworks>netstandard1.3</TargetFrameworks>
+    <TargetFrameworks>netstandard1.3;net46</TargetFrameworks>
     <AssemblyName>TwentyTwenty.DomainDriven.Marten</AssemblyName>
     <PackageId>TwentyTwenty.DomainDriven.Marten</PackageId>
     <VersionPrefix>$(SemVer)</VersionPrefix>
