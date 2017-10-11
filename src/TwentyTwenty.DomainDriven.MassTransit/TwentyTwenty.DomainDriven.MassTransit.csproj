@@ -6,6 +6,9 @@
     <TargetFrameworks>netstandard1.6;net452</TargetFrameworks>
     <AssemblyName>TwentyTwenty.DomainDriven.MassTransit</AssemblyName>
     <PackageId>TwentyTwenty.DomainDriven.MassTransit</PackageId>
+    <PackageIconUrl>https://avatars3.githubusercontent.com/u/15891935?v=3&amp;s=64</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/2020IP/TwentyTwenty.DomainDriven</PackageProjectUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/2020IP/TwentyTwenty.DomainDriven/master/LICENSE</PackageLicenseUrl>
     <VersionPrefix>$(SemVer)</VersionPrefix>
   </PropertyGroup>
 
