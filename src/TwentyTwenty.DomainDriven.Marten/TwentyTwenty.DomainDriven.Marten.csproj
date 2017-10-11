@@ -13,8 +13,8 @@
     <ProjectReference Include="..\TwentyTwenty.DomainDriven\TwentyTwenty.DomainDriven.csproj" />
   </ItemGroup>
 
-  <ItemGroup>    
-    <PackageReference Include="Marten" Version="2.2.0" />
+  <ItemGroup>
+    <PackageReference Include="Marten" Version="2.3.2" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.3'">
