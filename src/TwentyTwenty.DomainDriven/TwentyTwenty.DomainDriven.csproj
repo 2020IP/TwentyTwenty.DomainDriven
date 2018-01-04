@@ -3,14 +3,14 @@
   <PropertyGroup>
     <Description>TwentyTwenty.DomainDriven Class Library</Description>
     <Authors>Jarrod Alexander, Eric Green</Authors>
-    <TargetFrameworks>netstandard1.3;net452</TargetFrameworks>
+    <TargetFrameworks>netstandard2;net452</TargetFrameworks>
     <AssemblyName>TwentyTwenty.DomainDriven</AssemblyName>
     <PackageId>TwentyTwenty.DomainDriven</PackageId>
     <VersionPrefix>$(SemVer)</VersionPrefix>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.3'">
-    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2'">
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.4.0" />
   </ItemGroup>
 
 </Project>

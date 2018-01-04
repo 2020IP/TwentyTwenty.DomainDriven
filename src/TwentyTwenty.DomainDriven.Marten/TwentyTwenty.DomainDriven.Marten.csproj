@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Description>TwentyTwenty.DomainDriven.Marten Class Library</Description>
     <Authors>Jarrod Alexander, Eric Green</Authors>
-    <TargetFrameworks>netstandard1.3</TargetFrameworks>
+    <TargetFrameworks>netstandard2</TargetFrameworks>
     <AssemblyName>TwentyTwenty.DomainDriven.Marten</AssemblyName>
     <PackageId>TwentyTwenty.DomainDriven.Marten</PackageId>
     <VersionPrefix>$(SemVer)</VersionPrefix>
@@ -14,11 +14,11 @@
   </ItemGroup>
 
   <ItemGroup>    
-    <PackageReference Include="Marten" Version="2.2.0" />
+    <PackageReference Include="Marten" Version="2.5.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.3'">
-    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2'">
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.4.0" />
   </ItemGroup>
 
 </Project>

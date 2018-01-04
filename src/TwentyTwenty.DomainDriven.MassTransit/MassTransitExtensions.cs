@@ -18,10 +18,10 @@ namespace TwentyTwenty.DomainDriven.MassTransit
             return closedType == null ? null : closedType.GenericTypeArguments.First();        
         }
 
-        public static void AddConsumers(this MassTransitOptions opt, params Type[] markerTypes)
+        public static void AddConsumers(this IServiceCollectionConfigurator opt, params Type[] markerTypes)
             => AddConsumers(opt, markerTypes.Select(t => t.GetTypeInfo().Assembly).ToArray());
 
-        public static void AddConsumers(this MassTransitOptions opt, params Assembly[] assemblies)
+        public static void AddConsumers(this IServiceCollectionConfigurator opt, params Assembly[] assemblies)
         {
             var types = AssemblyTypeCache.FindTypes(assemblies, t =>
             {
@@ -38,13 +38,15 @@ namespace TwentyTwenty.DomainDriven.MassTransit
         public static IRabbitMqBusFactoryConfigurator AddEventReceiveEndpoints(this IRabbitMqBusFactoryConfigurator configurator, IRabbitMqHost host, IServiceProvider services)
         {
             var cache = services.GetRequiredService<IConsumerCacheService>();
+            var cacheConfigurator = services.GetRequiredService<ICachedConfigurator>();
 
-            var eventHandlers = cache.Instance.Keys
+            var eventHandlers = cache.GetConfigurators()
+                .Select(c => c.GetType().GetGenericArguments().First())
                 .Where(c => !typeof(ICommand).IsAssignableFrom(c.GetMessageType()));
 
             foreach (var handler in eventHandlers)
             {
-                configurator.ReceiveEndpoint(host, handler.Name, c => cache.Configure(handler, c, services));
+                configurator.ReceiveEndpoint(host, handler.Name, c => cacheConfigurator.Configure(c, services));
             }
 
             return configurator;
@@ -53,14 +55,16 @@ namespace TwentyTwenty.DomainDriven.MassTransit
         public static IRabbitMqBusFactoryConfigurator AddCommandReceiveEndpoints(this IRabbitMqBusFactoryConfigurator configurator, IRabbitMqHost host, IServiceProvider services)
         {
             var cache = services.GetRequiredService<IConsumerCacheService>();
+            var cacheConfigurator = services.GetRequiredService<ICachedConfigurator>();
 
-            var registrations = cache.Instance.Keys
+            var registrations = cache.GetConfigurators()
+                .Select(c => c.GetType().GetGenericArguments().First())
                 .Select(c => new { Handler = c, Command = c.GetMessageType() })
                 .Where(c => typeof(ICommand).IsAssignableFrom(c.Command));
 
             foreach (var reg in registrations)
             {
-                configurator.ReceiveEndpoint(host, reg.Command.Name, c => cache.Configure(reg.Handler, c, services));
+                configurator.ReceiveEndpoint(host, reg.Command.Name, c => cacheConfigurator.Configure(c, services));
             }
 
             return configurator;
