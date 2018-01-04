@@ -7,19 +7,17 @@ using TwentyTwenty.DomainDriven.CQRS;
 using System.Linq;
 using System.Threading;
 using System.Reflection;
-using Microsoft.Extensions.Logging;
 using MassTransit.RabbitMqTransport;
 
 namespace TwentyTwenty.DomainDriven.MassTransit
 {
     public class MassTransitMessageBus : IEventPublisher, ICommandSender, ICommandSenderReceiver
     {
-        private readonly ILogger<MassTransitMessageBus> _logger;
         private readonly MassTransitMessageBusOptions _options;
         private readonly IBus _bus;
         private readonly Func<Type, Uri> _getSendAddress;
 
-        public MassTransitMessageBus(MassTransitMessageBusOptions options, IBus bus, ILogger<MassTransitMessageBus> logger, Func<Type, Uri> getSendAddress)
+        public MassTransitMessageBus(MassTransitMessageBusOptions options, IBus bus, Func<Type, Uri> getSendAddress)
         {
             if (options == null)
             {
@@ -29,16 +27,11 @@ namespace TwentyTwenty.DomainDriven.MassTransit
             {
                 throw new ArgumentNullException(nameof(bus));
             }
-            if (logger == null)
-            {
-                throw new ArgumentException(nameof(logger));
-            }
             if (getSendAddress == null)
             {
                 throw new ArgumentException(nameof(getSendAddress));
             }
 
-            _logger = logger;
             _options = options;
             _bus = bus;
             _getSendAddress = getSendAddress;
