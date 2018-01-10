@@ -38,15 +38,14 @@ namespace TwentyTwenty.DomainDriven.MassTransit
         public static IRabbitMqBusFactoryConfigurator AddEventReceiveEndpoints(this IRabbitMqBusFactoryConfigurator configurator, IRabbitMqHost host, IServiceProvider services)
         {
             var cache = services.GetRequiredService<IConsumerCacheService>();
-            var cacheConfigurator = services.GetRequiredService<ICachedConfigurator>();
 
             var eventHandlers = cache.GetConfigurators()
-                .Select(c => c.GetType().GetGenericArguments().First())
-                .Where(c => !typeof(ICommand).IsAssignableFrom(c.GetMessageType()));
+                .Select(c => new { HandlerType = c.GetType().GetGenericArguments().First(), Configurator = c, })
+                .Where(c => !typeof(ICommand).IsAssignableFrom(c.HandlerType.GetMessageType()));
 
             foreach (var handler in eventHandlers)
             {
-                configurator.ReceiveEndpoint(host, handler.Name, c => cacheConfigurator.Configure(c, services));
+                configurator.ReceiveEndpoint(host, handler.HandlerType.Name, c => handler.Configurator.Configure(c, services));
             }
 
             return configurator;
@@ -55,16 +54,14 @@ namespace TwentyTwenty.DomainDriven.MassTransit
         public static IRabbitMqBusFactoryConfigurator AddCommandReceiveEndpoints(this IRabbitMqBusFactoryConfigurator configurator, IRabbitMqHost host, IServiceProvider services)
         {
             var cache = services.GetRequiredService<IConsumerCacheService>();
-            var cacheConfigurator = services.GetRequiredService<ICachedConfigurator>();
 
-            var registrations = cache.GetConfigurators()
-                .Select(c => c.GetType().GetGenericArguments().First())
-                .Select(c => new { Handler = c, Command = c.GetMessageType() })
-                .Where(c => typeof(ICommand).IsAssignableFrom(c.Command));
+            var commandHandlers = cache.GetConfigurators()
+                .Select(c => new { HandlerType = c.GetType().GetGenericArguments().First(), Configurator = c, })
+                .Where(c => typeof(ICommand).IsAssignableFrom(c.HandlerType.GetMessageType()));
 
-            foreach (var reg in registrations)
+            foreach (var handler in commandHandlers)
             {
-                configurator.ReceiveEndpoint(host, reg.Command.Name, c => cacheConfigurator.Configure(c, services));
+                configurator.ReceiveEndpoint(host, handler.HandlerType.Name, c => handler.Configurator.Configure(c, services));
             }
 
             return configurator;
