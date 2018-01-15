@@ -56,12 +56,12 @@ namespace TwentyTwenty.DomainDriven.MassTransit
             var cache = services.GetRequiredService<IConsumerCacheService>();
 
             var commandHandlers = cache.GetConfigurators()
-                .Select(c => new { HandlerType = c.GetType().GetGenericArguments().First(), Configurator = c, })
-                .Where(c => typeof(ICommand).IsAssignableFrom(c.HandlerType.GetMessageType()));
+                .Select(c => new { MessageType = c.GetType().GetGenericArguments().First().GetMessageType(), Configurator = c, })
+                .Where(c => typeof(ICommand).IsAssignableFrom(c.MessageType));
 
             foreach (var handler in commandHandlers)
             {
-                configurator.ReceiveEndpoint(host, handler.HandlerType.Name, c => handler.Configurator.Configure(c, services));
+                configurator.ReceiveEndpoint(host, handler.MessageType.Name, c => handler.Configurator.Configure(c, services));
             }
 
             return configurator;
