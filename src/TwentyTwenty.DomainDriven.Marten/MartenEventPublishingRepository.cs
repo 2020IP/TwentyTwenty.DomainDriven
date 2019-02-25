@@ -43,5 +43,21 @@ namespace TwentyTwenty.DomainDriven.Marten
         {
             return _session.LoadAsync<T>(id);
         }
+
+        public void Delete<T>(T aggregate) 
+            where T : class, IEventPublishingAggregateRoot<Guid>, new()
+        {
+            _session.Delete(aggregate);
+            _session.SaveChanges();
+            aggregate.MarkEventsAsPublished();
+        }
+
+        public async Task DeleteAsync<T>(T aggregate) 
+            where T : class, IEventPublishingAggregateRoot<Guid>, new()
+        {
+            _session.Delete(aggregate);
+            await _session.SaveChangesAsync().ConfigureAwait(false);
+            aggregate.MarkEventsAsPublished();
+        }
     }
 }

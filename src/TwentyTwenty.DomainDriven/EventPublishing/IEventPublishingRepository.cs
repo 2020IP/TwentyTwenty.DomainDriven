@@ -16,5 +16,11 @@ namespace TwentyTwenty.DomainDriven.EventPublishing
 
         Task<T> GetByIdAsync<T>(Guid id) 
             where T : class, IEventPublishingAggregateRoot<TId>, new();
+
+        void Delete<T>(T entity) 
+            where T : class, IEventPublishingAggregateRoot<TId>, new();
+
+        Task DeleteAsync<T>(T entity) 
+            where T : class, IEventPublishingAggregateRoot<TId>, new();
     }
 }
