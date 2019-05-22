@@ -19,9 +19,15 @@ namespace TwentyTwenty.DomainDriven.MassTransit
         }
 
         public static void AddConsumers(this IServiceCollectionConfigurator opt, params Type[] markerTypes)
-            => AddConsumers(opt, markerTypes.Select(t => t.GetTypeInfo().Assembly).ToArray());
+            => AddConsumers(opt, false, null, markerTypes.Select(t => t.GetTypeInfo().Assembly).ToArray());
 
-        public static void AddConsumers(this IServiceCollectionConfigurator opt, params Assembly[] assemblies)
+            public static void AddConsumers(this IServiceCollectionConfigurator opt, params Assembly[] assemblies)
+            => AddConsumers(opt, false, null, assemblies);
+
+        public static void AddConsumers(this IServiceCollectionConfigurator opt, bool mapDefaultEndpoints, string rabbitMqUri, params Type[] markerTypes)
+            => AddConsumers(opt, mapDefaultEndpoints, rabbitMqUri, markerTypes.Select(t => t.GetTypeInfo().Assembly).ToArray());
+
+        public static void AddConsumers(this IServiceCollectionConfigurator opt, bool mapDefaultEndpoints, string rabbitMqUri, params Assembly[] assemblies)
         {
             var types = AssemblyTypeCache.FindTypes(assemblies, t =>
             {
@@ -31,6 +37,15 @@ namespace TwentyTwenty.DomainDriven.MassTransit
 
             foreach (var type in types)
             {
+                if (mapDefaultEndpoints && !string.IsNullOrEmpty(rabbitMqUri))
+                {
+                    var messageType = type.GetMessageType();
+                    var method = typeof(EndpointConvention)
+                        .MakeGenericType(messageType)
+                        .GetMethod("Map", BindingFlags.Static | BindingFlags.Public);
+                    method.Invoke(null, new object[] { null, new Uri($"{rabbitMqUri}/{nameof(messageType)}") });
+                }
+
                 opt.InvokeGeneric("AddConsumer", new[] { type });
             }
         }
