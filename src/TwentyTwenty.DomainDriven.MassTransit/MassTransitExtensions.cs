@@ -42,7 +42,7 @@ namespace TwentyTwenty.DomainDriven.MassTransit
             var types = AssemblyTypeCache.FindTypes(assemblies, t =>
             {
                 var info = t.GetTypeInfo();
-                return !info.IsAbstract && !info.IsInterface && typeof(IConsumer).IsAssignableFrom(t);
+                return !info.IsAbstract && !info.IsInterface && typeof(ICommand).IsAssignableFrom(t);
             }).Result.AllTypes();
 
             var mapMethod = typeof(EndpointConvention)
@@ -50,12 +50,8 @@ namespace TwentyTwenty.DomainDriven.MassTransit
 
             foreach (var type in types)
             {
-                var messageType = type.GetMessageType();
-                if (typeof(ICommand).IsAssignableFrom(messageType))
-                {
-                    var generic = mapMethod.MakeGenericMethod(messageType);
-                    generic.Invoke(null, new object[] { new Uri($"{rabbitMqUri}/{messageType.Name}") });
-                }
+                var generic = mapMethod.MakeGenericMethod(type);
+                generic.Invoke(null, new object[] { new Uri($"{rabbitMqUri}/{type.Name}") });
             }
         }
 
