@@ -83,12 +83,8 @@ namespace TwentyTwenty.DomainDriven
             
             while(t != typeof(object))
             {
-#if DNX451
-                fields.AddRange(t.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public));
-#else
                 fields.AddRange(t.GetTypeInfo().DeclaredFields);
-#endif
-                t = t.GetTypeInfo().BaseType;    
+                t = t.GetTypeInfo().BaseType;
             }
             
             return fields;

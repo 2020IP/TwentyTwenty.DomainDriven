@@ -2,7 +2,6 @@ using MassTransit;
 using MassTransit.Courier;
 using MassTransit.Definition;
 using MassTransit.Saga;
-using Microsoft.Extensions.DependencyInjection;
 using TwentyTwenty.DomainDriven.CQRS;
 
 namespace TwentyTwenty.DomainDriven.MassTransit
