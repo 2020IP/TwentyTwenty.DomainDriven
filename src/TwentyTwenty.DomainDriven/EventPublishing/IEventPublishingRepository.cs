@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace TwentyTwenty.DomainDriven.EventPublishing
@@ -9,6 +10,12 @@ namespace TwentyTwenty.DomainDriven.EventPublishing
             where T : class, IEventPublishingAggregateRoot<TId>, new();
 
         Task<T> SaveAsync<T>(T entity) 
+            where T : class, IEventPublishingAggregateRoot<TId>, new();
+
+        void Save<T>(params T[] aggregates) 
+            where T : class, IEventPublishingAggregateRoot<TId>, new();
+
+        Task SaveAsync<T>(params T[] aggregates)
             where T : class, IEventPublishingAggregateRoot<TId>, new();
 
         T GetById<T>(TId id) 
