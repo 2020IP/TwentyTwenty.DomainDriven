@@ -37,14 +37,14 @@ namespace TwentyTwenty.DomainDriven.MassTransit
         }
 
         public string ExecuteActivity<T, TArguments>()
-            where T : class, ExecuteActivity<TArguments>
+            where T : class, IExecuteActivity<TArguments>
             where TArguments : class
         {
             return DefaultEndpointNameFormatter.Instance.ExecuteActivity<T, TArguments>();
         }
 
         public string CompensateActivity<T, TLog>()
-            where T : class, CompensateActivity<TLog>
+            where T : class, ICompensateActivity<TLog>
             where TLog : class
         {
             return DefaultEndpointNameFormatter.Instance.CompensateActivity<T, TLog>();
