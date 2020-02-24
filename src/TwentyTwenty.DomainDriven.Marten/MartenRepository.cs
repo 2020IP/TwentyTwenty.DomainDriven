@@ -1,8 +1,9 @@
 using System;
-using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Marten;
+using Marten.Util;
 using TwentyTwenty.DomainDriven.EventSourcing;
 
 namespace TwentyTwenty.DomainDriven.Marten

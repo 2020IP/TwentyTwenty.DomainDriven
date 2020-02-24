@@ -18,6 +18,7 @@
 
   <ItemGroup>    
     <PackageReference Include="Marten" Version="3.8.0" />
+    <PackageReference Include="TwentyTwenty.Marten" Version="0.1.2" />
   </ItemGroup>
 
 </Project>
