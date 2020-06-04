@@ -49,5 +49,10 @@ namespace TwentyTwenty.DomainDriven.MassTransit
         {
             return DefaultEndpointNameFormatter.Instance.CompensateActivity<T, TLog>();
         }
+
+        public virtual string SanitizeName(string name)
+        {
+            return name;
+        }
     }
 }

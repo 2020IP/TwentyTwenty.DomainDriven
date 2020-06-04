@@ -8,7 +8,7 @@ namespace TwentyTwenty.DomainDriven
     {        
         public override bool Equals(object obj)
         {
-            if(obj == null)
+            if (obj == null)
             {
                 return false;
             }
@@ -25,11 +25,11 @@ namespace TwentyTwenty.DomainDriven
             
             var hashCode = startValue;
             
-            foreach(var field in fields)
+            foreach (var field in fields)
             {
                 var value = field.GetValue(this);
                 
-                if(value != null)
+                if (value != null)
                 {
                     hashCode = hashCode * multiplier + value.GetHashCode();
                 }
@@ -62,7 +62,7 @@ namespace TwentyTwenty.DomainDriven
                 
                 if (value1 == null)
                 {
-                    if(value2 != null)
+                    if (value2 != null)
                     {
                         return false;
                     }
@@ -81,7 +81,7 @@ namespace TwentyTwenty.DomainDriven
             var t = GetType();
             var fields = new List<FieldInfo>();
             
-            while(t != typeof(object))
+            while (t != typeof(object))
             {
                 fields.AddRange(t.GetTypeInfo().DeclaredFields);
                 t = t.GetTypeInfo().BaseType;
@@ -90,7 +90,7 @@ namespace TwentyTwenty.DomainDriven
             return fields;
         }
         
-        public static bool operator ==(ValueObject<T> x, ValueObject<T> y)
+        public static bool operator == (ValueObject<T> x, ValueObject<T> y)
         {
             
             if (Equals(null, x))
@@ -101,7 +101,7 @@ namespace TwentyTwenty.DomainDriven
             return x.Equals(y);
         }
         
-        public static bool operator !=(ValueObject<T> x, ValueObject<T> y)
+        public static bool operator != (ValueObject<T> x, ValueObject<T> y)
         {
             return !(x == y);
         }
