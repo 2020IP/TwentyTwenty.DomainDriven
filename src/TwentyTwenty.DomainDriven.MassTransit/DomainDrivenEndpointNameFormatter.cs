@@ -36,6 +36,12 @@ namespace TwentyTwenty.DomainDriven.MassTransit
             return DefaultEndpointNameFormatter.Instance.Saga<T>();
         }
 
+        public string Message<T>() 
+            where T : class
+        {
+            return DefaultEndpointNameFormatter.Instance.Message<T>();
+        }
+
         public string ExecuteActivity<T, TArguments>()
             where T : class, IExecuteActivity<TArguments>
             where TArguments : class

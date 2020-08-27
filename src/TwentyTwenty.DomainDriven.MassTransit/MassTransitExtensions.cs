@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using MassTransit;
-using MassTransit.ExtensionsDependencyInjectionIntegration;
 using MassTransit.RabbitMqTransport;
 using MassTransit.Util;
 using TwentyTwenty.DomainDriven.CQRS;
@@ -17,7 +16,7 @@ namespace TwentyTwenty.DomainDriven.MassTransit
             return closedType == null ? null : closedType.GenericTypeArguments.First();        
         }
 
-        public static void AddConsumers(this IServiceCollectionConfigurator opt, params Type[] markerTypes)
+        public static void AddConsumers(this IRegistrationConfigurator opt, params Type[] markerTypes)
             => AddConsumers(opt, markerTypes.Select(t => t.GetTypeInfo().Assembly).ToArray());
 
         public static void AddConsumers(this IRegistrationConfigurator opt, params Assembly[] assemblies)
