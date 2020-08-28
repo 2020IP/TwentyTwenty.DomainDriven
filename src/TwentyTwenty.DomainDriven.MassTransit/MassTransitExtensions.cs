@@ -46,7 +46,6 @@ namespace TwentyTwenty.DomainDriven.MassTransit
             if (typeInfo.IsInterface && typeInfo.IsGenericType && type.GetGenericTypeDefinition() == openType)
                 return type;
 
-
             foreach (var interfaceType in type.GetInterfaces())
             {
                 var interfaceTypeInfo = interfaceType.GetTypeInfo();
