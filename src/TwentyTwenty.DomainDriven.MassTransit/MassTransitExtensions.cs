@@ -16,23 +16,6 @@ namespace TwentyTwenty.DomainDriven.MassTransit
             return closedType == null ? null : closedType.GenericTypeArguments.First();        
         }
 
-        public static void AddConsumers(this IRegistrationConfigurator opt, params Type[] markerTypes)
-            => AddConsumers(opt, markerTypes.Select(t => t.GetTypeInfo().Assembly).ToArray());
-
-        public static void AddConsumers(this IRegistrationConfigurator opt, params Assembly[] assemblies)
-        {
-            var types = AssemblyTypeCache.FindTypes(assemblies, t =>
-            {
-                var info = t.GetTypeInfo();
-                return !info.IsAbstract && !info.IsInterface && typeof(IConsumer).IsAssignableFrom(t);
-            }).Result.AllTypes();
-
-            foreach (var type in types)
-            {
-                opt.AddConsumer(type);
-            }
-        }
-
         public static void MapEndpointConventions(this IRabbitMqBusFactoryConfigurator cfg, string rabbitMqUri, params Type[] markerTypes)
             => MapEndpointConventions(cfg, rabbitMqUri, markerTypes.Select(t => t.GetTypeInfo().Assembly).ToArray());
 
