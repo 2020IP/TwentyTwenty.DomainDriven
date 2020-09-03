@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <PackageReference Include="MassTransit.RabbitMq" Version="7.0.3" />
+    <PackageReference Include="MassTransit.ActiveMq" Version="7.0.3" />
     <PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="7.0.3" />
   </ItemGroup>
 </Project>

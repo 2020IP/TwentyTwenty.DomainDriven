@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using MassTransit;
+using MassTransit.ActiveMqTransport;
 using MassTransit.RabbitMqTransport;
 using MassTransit.Util;
 using TwentyTwenty.DomainDriven.CQRS;
@@ -10,10 +11,25 @@ namespace TwentyTwenty.DomainDriven.MassTransit
 {
     public static class MassTransitExtensions
     {
-        public static Type GetMessageType(this Type handlerType)
+        public static void MapEndpointConventions(this IActiveMqBusFactoryConfigurator cfg, string rabbitMqUri, params Type[] markerTypes)
+            => MapEndpointConventions(cfg, rabbitMqUri, markerTypes.Select(t => t.GetTypeInfo().Assembly).ToArray());
+
+        public static void MapEndpointConventions(this IActiveMqBusFactoryConfigurator cfg, string rabbitMqUri, params Assembly[] assemblies)
         {
-            var closedType = handlerType.FindInterfaceThatCloses(typeof(IConsumer<>));
-            return closedType == null ? null : closedType.GenericTypeArguments.First();        
+            var types = AssemblyTypeCache.FindTypes(assemblies, t =>
+            {
+                var info = t.GetTypeInfo();
+                return !info.IsAbstract && !info.IsInterface && typeof(ICommand).IsAssignableFrom(t);
+            }).Result.AllTypes();
+
+            var mapMethod = typeof(EndpointConvention)
+                .GetMethod("Map", BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(Uri) }, null);
+
+            foreach (var type in types)
+            {
+                var generic = mapMethod.MakeGenericMethod(type);
+                generic.Invoke(null, new object[] { new Uri($"{rabbitMqUri}/{type.Name}") });
+            }
         }
 
         public static void MapEndpointConventions(this IRabbitMqBusFactoryConfigurator cfg, string rabbitMqUri, params Type[] markerTypes)
@@ -35,6 +51,12 @@ namespace TwentyTwenty.DomainDriven.MassTransit
                 var generic = mapMethod.MakeGenericMethod(type);
                 generic.Invoke(null, new object[] { new Uri($"{rabbitMqUri}/{type.Name}") });
             }
+        }
+
+        public static Type GetMessageType(this Type handlerType)
+        {
+            var closedType = handlerType.FindInterfaceThatCloses(typeof(IConsumer<>));
+            return closedType == null ? null : closedType.GenericTypeArguments.First();        
         }
 
         private static Type FindInterfaceThatCloses(this Type type, Type openType)
