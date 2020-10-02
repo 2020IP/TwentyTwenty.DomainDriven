@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using MassTransit;
 using MassTransit.Util;
 using TwentyTwenty.DomainDriven.CQRS;
@@ -9,24 +10,26 @@ namespace TwentyTwenty.DomainDriven.MassTransit
 {
     public static class MassTransitExtensions
     {
-        public static void MapEndpointConventions(this IBusFactoryConfigurator cfg, string messageUri, params Type[] markerTypes)
-            => MapEndpointConventions(cfg, messageUri, markerTypes.Select(t => t.GetTypeInfo().Assembly).ToArray());
+        public static Task MapEndpointConventions(this IBusFactoryConfigurator cfg, params Type[] markerTypes)
+            => MapEndpointConventions(cfg, markerTypes.Select(t => t.GetTypeInfo().Assembly).ToArray());
 
-        public static void MapEndpointConventions(this IBusFactoryConfigurator cfg, string messageUri, params Assembly[] assemblies)
+        public static async Task MapEndpointConventions(this IBusFactoryConfigurator cfg, params Assembly[] assemblies)
         {
-            var types = AssemblyTypeCache.FindTypes(assemblies, t =>
+            var types = await AssemblyTypeCache.FindTypes(assemblies, t =>
             {
                 var info = t.GetTypeInfo();
                 return !info.IsAbstract && !info.IsInterface && typeof(ICommand).IsAssignableFrom(t);
-            }).Result.AllTypes();
+            });
+            
+            var allTypes = types.AllTypes();
 
             var mapMethod = typeof(EndpointConvention)
                 .GetMethod("Map", BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(Uri) }, null);
 
-            foreach (var type in types)
+            foreach (var type in allTypes)
             {
                 var generic = mapMethod.MakeGenericMethod(type);
-                generic.Invoke(null, new object[] { new Uri($"{messageUri}/{type.Name}") });
+                generic.Invoke(null, new object[] { new Uri($"queue:{type.Name}") });
             }
         }
 
