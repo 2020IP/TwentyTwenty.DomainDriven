@@ -1,4 +1,3 @@
-//#tool "nuget:?package=GitReleaseNotes"
 #tool nuget:?package=GitVersion.CommandLine
 
 GitVersion versionInfo = null;
