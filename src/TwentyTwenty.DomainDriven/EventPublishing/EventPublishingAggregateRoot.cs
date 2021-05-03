@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace TwentyTwenty.DomainDriven.EventPublishing
 {
@@ -7,19 +6,12 @@ namespace TwentyTwenty.DomainDriven.EventPublishing
     {
         protected readonly List<IDomainEvent> _changes = new List<IDomainEvent>();
 
-        public virtual IEnumerable<IDomainEvent> GetUnpublishedEvents()
-        {
-            return _changes;
-        }
+        public virtual IEnumerable<IDomainEvent> GetUnpublishedEvents() => _changes;
 
-        public virtual void MarkEventsAsPublished()
-        {
-            _changes.Clear();
-        }
+        public virtual bool HasUnpublishedEvents => _changes.Count > 0;
 
-        protected virtual void AddEvent(IDomainEvent @event)
-        {
-            _changes.Add(@event);
-        }
+        public virtual void MarkEventsAsPublished() => _changes.Clear();
+
+        protected virtual void AddEvent(IDomainEvent @event) => _changes.Add(@event);
     }
 }

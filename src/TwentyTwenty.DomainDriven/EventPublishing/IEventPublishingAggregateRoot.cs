@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace TwentyTwenty.DomainDriven.EventPublishing
@@ -7,5 +6,6 @@ namespace TwentyTwenty.DomainDriven.EventPublishing
     {
         IEnumerable<IDomainEvent> GetUnpublishedEvents();
         void MarkEventsAsPublished();
+        bool HasUnpublishedEvents { get; }
     }
 }
