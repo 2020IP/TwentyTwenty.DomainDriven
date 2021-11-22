@@ -30,20 +30,20 @@ namespace TwentyTwenty.DomainDriven.Marten
 
         public async Task<List<IEventDescriptor>> GetEventsForAggregateAsync(Guid aggregateId)
         {
-            var stream = await _session.Events.FetchStreamAsync(aggregateId).ConfigureAwait(false);
+            var stream = await _session.Events.FetchStreamAsync(aggregateId);
             return stream?.Select(e => (IEventDescriptor)new MartenEvent(e.Id, e.Version, e.Timestamp.UtcDateTime, e.Data as IDomainEvent)).ToList();
         }
 
-        public void SaveEvents(Guid aggregateId, IEnumerable<IDomainEvent> events, int? expectedVersion = default(int?))
+        public void SaveEvents(Guid aggregateId, IEnumerable<IDomainEvent> events, int? expectedVersion = default)
         {
             _session.Events.Append(aggregateId, events.ToArray());
             _session.SaveChanges();
         }
 
-        public async Task SaveEventsAsync(Guid aggregateId, IEnumerable<IDomainEvent> events, int? expectedVersion = default(int?))
+        public Task SaveEventsAsync(Guid aggregateId, IEnumerable<IDomainEvent> events, int? expectedVersion = default)
         {
             _session.Events.Append(aggregateId, events.ToArray());
-            await _session.SaveChangesAsync().ConfigureAwait(false);
+            return _session.SaveChangesAsync();
         }
 
         public void AppendEvents(Guid aggregateId, params IDomainEvent[] events)

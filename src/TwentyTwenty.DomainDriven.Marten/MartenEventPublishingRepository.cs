@@ -27,7 +27,7 @@ namespace TwentyTwenty.DomainDriven.Marten
             where T : class, IEventPublishingAggregateRoot<Guid>, new()
         {
             _session.Store(aggregate);
-            await _session.SaveChangesAsync().ConfigureAwait(false);
+            await _session.SaveChangesAsync();
             aggregate.MarkEventsAsPublished();
             return aggregate;
         }
@@ -48,7 +48,7 @@ namespace TwentyTwenty.DomainDriven.Marten
             where T : class, IEventPublishingAggregateRoot<Guid>, new()
         {
             _session.Store(aggregates);
-            await _session.SaveChangesAsync().ConfigureAwait(false);
+            await _session.SaveChangesAsync();
 
             foreach (var aggregate in aggregates)
             {
@@ -80,7 +80,7 @@ namespace TwentyTwenty.DomainDriven.Marten
             where T : class, IEventPublishingAggregateRoot<Guid>, new()
         {
             _session.Delete(aggregate);
-            await _session.SaveChangesAsync().ConfigureAwait(false);
+            await _session.SaveChangesAsync();
             aggregate.MarkEventsAsPublished();
         }
     }

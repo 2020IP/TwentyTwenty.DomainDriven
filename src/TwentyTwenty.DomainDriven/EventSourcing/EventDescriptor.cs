@@ -6,13 +6,9 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
         where TEvent : IDomainEvent
     {
         public Guid Id { get; protected set; }
-
-        public int Version { get; protected set; }
-
+        public long Version { get; protected set; }
         public DateTime TimeStamp { get; protected set; }
-
         public TEvent Data { get; protected set; }
-
         IDomainEvent IEventDescriptor.Data => Data;
 
         public virtual void Apply<TProjection>(TProjection state, IProjectionStepCache<TProjection> cache)

@@ -1,9 +1,7 @@
 using System;
-using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Marten;
-using Marten.Util;
 using TwentyTwenty.DomainDriven.EventSourcing;
 
 namespace TwentyTwenty.DomainDriven.Marten
@@ -21,7 +19,7 @@ namespace TwentyTwenty.DomainDriven.Marten
             where T : class, IEventSourcingAggregateRoot<Guid>, new()
             => _session.Events.AggregateStreamAsync<T>(id);
 
-        public void Save<T>(T aggregate, int? expectedVersion = default(int?)) 
+        public void Save<T>(T aggregate, int? expectedVersion = default) 
             where T : class, IEventSourcingAggregateRoot<Guid>, new()
         {
             var changes = aggregate
@@ -32,13 +30,13 @@ namespace TwentyTwenty.DomainDriven.Marten
             aggregate.MarkEventsAsPublished();
         }
 
-        public async Task SaveAsync<T>(T aggregate, int? expectedVersion = default(int?)) 
+        public async Task SaveAsync<T>(T aggregate, int? expectedVersion = default) 
             where T : class, IEventSourcingAggregateRoot<Guid>, new()
         {
             var changes = aggregate
                 .GetUnpublishedEvents();
             
-            await SaveEventsAsync(aggregate.Id, changes).ConfigureAwait(false);
+            await SaveEventsAsync(aggregate.Id, changes);
             
             aggregate.MarkEventsAsPublished();
         }

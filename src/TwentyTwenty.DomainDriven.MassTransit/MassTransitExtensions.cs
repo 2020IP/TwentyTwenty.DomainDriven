@@ -36,7 +36,7 @@ namespace TwentyTwenty.DomainDriven.MassTransit
         public static Type GetMessageType(this Type handlerType)
         {
             var closedType = handlerType.FindInterfaceThatCloses(typeof(IConsumer<>));
-            return closedType == null ? null : closedType.GenericTypeArguments.First();        
+            return closedType?.GenericTypeArguments.First();        
         }
 
         private static Type FindInterfaceThatCloses(this Type type, Type openType)
