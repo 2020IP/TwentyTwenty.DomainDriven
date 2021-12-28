@@ -13,9 +13,9 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
 
         public virtual void Apply<TProjection>(TProjection state, IProjectionStepCache<TProjection> cache)
             where TProjection : class, IProjection
-        {            
+        {
             cache.StepFor<TEvent>()?.Apply(state, Data);
             cache.StepFor<IEventDescriptor<TEvent>>()?.Apply(state, this);
         }
-    }    
+    }
 }

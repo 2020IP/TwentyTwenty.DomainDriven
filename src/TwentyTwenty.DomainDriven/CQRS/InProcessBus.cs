@@ -16,8 +16,7 @@ namespace TwentyTwenty.DomainDriven.CQRS
 
         public void RegisterHandler<T>(Action<T> handler) where T : class, IMessage
         {
-            List<Action<IMessage>> handlers;
-            if (!_routes.TryGetValue(typeof(T), out handlers))
+            if (!_routes.TryGetValue(typeof(T), out List<Action<IMessage>> handlers))
             {
                 handlers = new List<Action<IMessage>>();
                 _routes.Add(typeof(T), handlers);
@@ -29,8 +28,7 @@ namespace TwentyTwenty.DomainDriven.CQRS
             where T : class, IMessage
             where TResult : class, IResponse
         {
-            List<Func<IMessage, Task<object>>> handlers;
-            if (!_responseRoutes.TryGetValue(typeof(T), out handlers))
+            if (!_responseRoutes.TryGetValue(typeof(T), out List<Func<IMessage, Task<object>>> handlers))
             {
                 handlers = new List<Func<IMessage, Task<object>>>();
                 _responseRoutes.Add(typeof(T), handlers);
@@ -43,8 +41,7 @@ namespace TwentyTwenty.DomainDriven.CQRS
 
         public Task Send(ICommand command, Type commandType)
         {
-            List<Action<IMessage>> handlers;
-            if (_routes.TryGetValue(commandType, out handlers))
+            if (_routes.TryGetValue(commandType, out List<Action<IMessage>> handlers))
             {
                 if (handlers.Count != 1)
                     throw new InvalidOperationException("Cannot send to more than one handler");
@@ -65,15 +62,14 @@ namespace TwentyTwenty.DomainDriven.CQRS
         public Task<TResult> Send<TResult>(ICommand command, Type commandType)
             where TResult : class, IResponse
         {
-            List<Func<IMessage, Task<object>>> handlers;
-            if (_responseRoutes.TryGetValue(commandType, out handlers))
+            if (_responseRoutes.TryGetValue(commandType, out List<Func<IMessage, Task<object>>> handlers))
             {
                 if (handlers.Count != 1)
                     throw new InvalidOperationException("Cannot send to more than one handler");
-                
+
                 return handlers[0](command).ContinueWith(r => (TResult)r.Result);
             }
-            
+
             throw new InvalidOperationException("No handler registered");
         }
 
@@ -82,8 +78,7 @@ namespace TwentyTwenty.DomainDriven.CQRS
 
         public Task Publish(IDomainEvent @event, Type eventType)
         {
-            List<Action<IMessage>> handlers;
-            if (!_routes.TryGetValue(eventType, out handlers))
+            if (!_routes.TryGetValue(eventType, out List<Action<IMessage>> handlers))
             {
                 return Task.FromResult(false);
             }

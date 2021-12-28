@@ -11,18 +11,15 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
 
         public EventSourcingRepository(IEventStore<TId> eventStore)
         {
-            if (eventStore == null)
-            {
-                throw new ArgumentNullException(nameof(eventStore));
-            }
-            _eventStore = eventStore;
+            _eventStore = eventStore ?? throw new ArgumentNullException(nameof(eventStore));
         }
 
         public void Save<T>(T aggregate, int? expectedVersion = null) 
             where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
             var changes = aggregate.GetUnpublishedEvents();
-            _eventStore.SaveEvents(aggregate.Id, changes, expectedVersion);
+            _eventStore.AppendEvents(aggregate.Id, changes, expectedVersion);
+            _eventStore.CommitEvents();
             aggregate.MarkEventsAsPublished();
         }
 
@@ -35,11 +32,12 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
             }
         }
 
-        public async Task SaveAsync<T>(T aggregate, int? expectedVersion = default(int?)) 
+        public async Task SaveAsync<T>(T aggregate, int? expectedVersion = default) 
             where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
             var changes = aggregate.GetUnpublishedEvents();
-            await _eventStore.SaveEventsAsync(aggregate.Id, changes, expectedVersion);
+            _eventStore.AppendEvents(aggregate.Id, changes, expectedVersion);
+            await _eventStore.CommitEventsAsync();
             aggregate.MarkEventsAsPublished();;
         }
 

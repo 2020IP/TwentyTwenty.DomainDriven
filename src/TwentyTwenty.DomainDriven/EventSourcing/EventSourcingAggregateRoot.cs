@@ -48,15 +48,13 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
             var thisType = typeof(TAggregate);
             var eventType = @event.GetType();
 
-            ConcurrentDictionary<Type, object> cache = null;
-
-            if (!HandlerCache.TryGetValue(thisType, out cache))
+            if (!HandlerCache.TryGetValue(thisType, out ConcurrentDictionary<Type, object> cache))
             {
                 cache = CreateCache(thisType);
                 HandlerCache[thisType] = cache;
             }
 
-            if(!cache.ContainsKey(eventType))
+            if (!cache.ContainsKey(eventType))
             {
                 throw new Exception("Apply method not found");
             }

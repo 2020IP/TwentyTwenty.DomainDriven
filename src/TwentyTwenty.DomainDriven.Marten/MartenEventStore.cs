@@ -34,21 +34,21 @@ namespace TwentyTwenty.DomainDriven.Marten
             return stream?.Select(e => (IEventDescriptor)new MartenEvent(e.Id, e.Version, e.Timestamp.UtcDateTime, e.Data as IDomainEvent)).ToList();
         }
 
-        public void SaveEvents(Guid aggregateId, IEnumerable<IDomainEvent> events, int? expectedVersion = default)
+        public void AppendEvents(Guid aggregateId, IEnumerable<IDomainEvent> events, int? expectedVersion = default)
         {
-            _session.Events.Append(aggregateId, events.ToArray());
-            _session.SaveChanges();
+            if (expectedVersion.HasValue)
+            {
+                _session.Events.Append(aggregateId, expectedVersion, events);
+            }
+            else
+            {
+                _session.Events.Append(aggregateId, events);
+            }
         }
 
-        public Task SaveEventsAsync(Guid aggregateId, IEnumerable<IDomainEvent> events, int? expectedVersion = default)
+        public void ArchiveAggregate(Guid aggregateId)
         {
-            _session.Events.Append(aggregateId, events.ToArray());
-            return _session.SaveChangesAsync();
-        }
-
-        public void AppendEvents(Guid aggregateId, params IDomainEvent[] events)
-        {
-            _session.Events.Append(aggregateId, events.ToArray());
+            _session.Events.ArchiveStream(aggregateId);
         }
 
         public Task CommitEventsAsync()
