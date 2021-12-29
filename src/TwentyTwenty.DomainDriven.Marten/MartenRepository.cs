@@ -9,8 +9,8 @@ namespace TwentyTwenty.DomainDriven.Marten
     {
         private readonly IDocumentSession _database;
 
-        public MartenRepository(IDocumentSession database, IEventStore<Guid> eventStore, IEventPublisher eventPublisher)
-            : base(eventStore, eventPublisher)
+        public MartenRepository(IDocumentSession database, IEventPublisher eventPublisher)
+            : base(new MartenEventStore(database), eventPublisher)
         {
             _database = database ?? throw new ArgumentNullException(nameof(database));
         }
