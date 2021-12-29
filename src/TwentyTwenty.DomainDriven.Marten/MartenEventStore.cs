@@ -36,7 +36,7 @@ namespace TwentyTwenty.DomainDriven.Marten
         {
             if (expectedVersion.HasValue)
             {
-                _session.Events.Append(streamId, expectedVersion, events);
+                _session.Events.Append(streamId, expectedVersion.Value, events);
             }
             else
             {
