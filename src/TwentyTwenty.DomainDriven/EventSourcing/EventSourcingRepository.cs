@@ -67,7 +67,7 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
             await PublishEvents(aggregates, token);
         }
 
-        private async Task PublishEvents<T>(T aggregate, CancellationToken token = default)
+        protected async Task PublishEvents<T>(T aggregate, CancellationToken token = default)
             where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
             if (_eventPublisher != null)
@@ -82,7 +82,7 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
             aggregate.ClearUncommittedEvents();
         }
 
-        private async Task PublishEvents<T>(IEnumerable<T> aggregates, CancellationToken token = default)
+        protected async Task PublishEvents<T>(IEnumerable<T> aggregates, CancellationToken token = default)
             where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
             foreach (var aggregate in aggregates)
