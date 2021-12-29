@@ -36,8 +36,7 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
         public virtual async Task SaveOptimistic<T>(T aggregate, CancellationToken token = default) 
             where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
-            var uncommittedEvents = aggregate.GetUncommittedEvents();
-            _eventStore.AppendEvents(aggregate.Id, uncommittedEvents, aggregate.Version + uncommittedEvents.Count);
+            _eventStore.AppendEvents(aggregate.Id, aggregate.GetUncommittedEvents(), aggregate.Version);
             await _eventStore.CommitEvents(token);
             await PublishEvents(aggregate, token);
         }
@@ -59,8 +58,7 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
         {
             foreach (var aggregate in aggregates)
             {
-                var uncommittedEvents = aggregate.GetUncommittedEvents();
-                _eventStore.AppendEvents(aggregate.Id, uncommittedEvents, aggregate.Version + uncommittedEvents.Count);
+                _eventStore.AppendEvents(aggregate.Id, aggregate.GetUncommittedEvents(), aggregate.Version);
             }
 
             await _eventStore.CommitEvents(token);
@@ -78,8 +76,7 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
         {
             if (_eventPublisher != null)
             {
-                var uncommittedEvents = aggregate.GetUncommittedEvents();
-                foreach (var uncommittedEvent in uncommittedEvents)
+                foreach (var uncommittedEvent in aggregate.GetUncommittedEvents())
                 {
                     await _eventPublisher.Publish(uncommittedEvent, token);
                 }
