@@ -1,6 +1,6 @@
 using System;
 
-namespace TwentyTwenty.DomainDriven.EventSourcing
+namespace TwentyTwenty.DomainDriven.Projections
 {
     public interface IProjectionStepCache<T> where T : IProjection
     {

@@ -1,33 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TwentyTwenty.DomainDriven.EventPublishing
 {
     public interface IEventPublishingRepository<TId>
     {
-        T Save<T>(T entity) 
+        Task<T> GetById<T>(TId id, CancellationToken token = default)
             where T : class, IEventPublishingAggregateRoot<TId>, new();
 
-        Task<T> SaveAsync<T>(T entity) 
+        Task Save<T>(T entity, CancellationToken token = default)
             where T : class, IEventPublishingAggregateRoot<TId>, new();
 
-        void Save<T>(params T[] aggregates) 
+        Task Save<T>(IEnumerable<T> aggregates, CancellationToken token = default)
             where T : class, IEventPublishingAggregateRoot<TId>, new();
 
-        Task SaveAsync<T>(params T[] aggregates)
-            where T : class, IEventPublishingAggregateRoot<TId>, new();
-
-        T GetById<T>(TId id) 
-            where T : class, IEventPublishingAggregateRoot<TId>, new();
-
-        Task<T> GetByIdAsync<T>(Guid id) 
-            where T : class, IEventPublishingAggregateRoot<TId>, new();
-
-        void Delete<T>(T entity) 
-            where T : class, IEventPublishingAggregateRoot<TId>, new();
-
-        Task DeleteAsync<T>(T entity) 
+        Task Delete<T>(T entity, CancellationToken token = default)
             where T : class, IEventPublishingAggregateRoot<TId>, new();
     }
 }

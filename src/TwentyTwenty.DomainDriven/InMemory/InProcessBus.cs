@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using TwentyTwenty.DomainDriven.CQRS;
+using TwentyTwenty.DomainDriven.EventPublishing;
 
-namespace TwentyTwenty.DomainDriven.CQRS
+namespace TwentyTwenty.DomainDriven.InMemory
 {
     public class InProcessBus : 
         ICommandSender, 
@@ -16,8 +19,7 @@ namespace TwentyTwenty.DomainDriven.CQRS
 
         public void RegisterHandler<T>(Action<T> handler) where T : class, IMessage
         {
-            List<Action<IMessage>> handlers;
-            if (!_routes.TryGetValue(typeof(T), out handlers))
+            if (!_routes.TryGetValue(typeof(T), out List<Action<IMessage>> handlers))
             {
                 handlers = new List<Action<IMessage>>();
                 _routes.Add(typeof(T), handlers);
@@ -29,8 +31,7 @@ namespace TwentyTwenty.DomainDriven.CQRS
             where T : class, IMessage
             where TResult : class, IResponse
         {
-            List<Func<IMessage, Task<object>>> handlers;
-            if (!_responseRoutes.TryGetValue(typeof(T), out handlers))
+            if (!_responseRoutes.TryGetValue(typeof(T), out List<Func<IMessage, Task<object>>> handlers))
             {
                 handlers = new List<Func<IMessage, Task<object>>>();
                 _responseRoutes.Add(typeof(T), handlers);
@@ -38,13 +39,12 @@ namespace TwentyTwenty.DomainDriven.CQRS
             handlers.Add(x => handler((T)x).ContinueWith(r => (object)r.Result));
         }
 
-        public Task Send(ICommand command)
-            => Send(command, command.GetType());
+        public Task Send(ICommand command, CancellationToken token = default)
+            => Send(command, command.GetType(), token);
 
-        public Task Send(ICommand command, Type commandType)
+        public Task Send(ICommand command, Type commandType, CancellationToken token = default)
         {
-            List<Action<IMessage>> handlers;
-            if (_routes.TryGetValue(commandType, out handlers))
+            if (_routes.TryGetValue(commandType, out List<Action<IMessage>> handlers))
             {
                 if (handlers.Count != 1)
                     throw new InvalidOperationException("Cannot send to more than one handler");
@@ -58,32 +58,30 @@ namespace TwentyTwenty.DomainDriven.CQRS
             }
         }
 
-        public Task<TResult> Send<TResult>(ICommand command)
+        public Task<TResult> Send<TResult>(ICommand command, CancellationToken token = default)
             where TResult : class, IResponse
-            => Send<TResult>(command, command.GetType());
+            => Send<TResult>(command, command.GetType(), token);
 
-        public Task<TResult> Send<TResult>(ICommand command, Type commandType)
+        public Task<TResult> Send<TResult>(ICommand command, Type commandType, CancellationToken token = default)
             where TResult : class, IResponse
         {
-            List<Func<IMessage, Task<object>>> handlers;
-            if (_responseRoutes.TryGetValue(commandType, out handlers))
+            if (_responseRoutes.TryGetValue(commandType, out List<Func<IMessage, Task<object>>> handlers))
             {
                 if (handlers.Count != 1)
                     throw new InvalidOperationException("Cannot send to more than one handler");
-                
+
                 return handlers[0](command).ContinueWith(r => (TResult)r.Result);
             }
-            
+
             throw new InvalidOperationException("No handler registered");
         }
 
-        public Task Publish(IDomainEvent @event)
-            => Publish(@event, @event.GetType());
+        public Task Publish(IDomainEvent @event, CancellationToken token = default)
+            => Publish(@event, @event.GetType(), token);
 
-        public Task Publish(IDomainEvent @event, Type eventType)
+        public Task Publish(IDomainEvent @event, Type eventType, CancellationToken token = default)
         {
-            List<Action<IMessage>> handlers;
-            if (!_routes.TryGetValue(eventType, out handlers))
+            if (!_routes.TryGetValue(eventType, out List<Action<IMessage>> handlers))
             {
                 return Task.FromResult(false);
             }

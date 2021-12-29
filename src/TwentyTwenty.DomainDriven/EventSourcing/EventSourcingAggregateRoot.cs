@@ -14,14 +14,16 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
         public const string ApplyMethod = "Apply";
         private static readonly ConcurrentDictionary<Type, ConcurrentDictionary<Type, object>> HandlerCache = 
             new ConcurrentDictionary<Type, ConcurrentDictionary<Type, object>>(); 
-        public int Version { get; protected set; }
+        public long Version { get; protected set; }
 
-        public void LoadChangesFromHistory(IEnumerable<IDomainEvent> history)
+        public void LoadChangesFromHistory(IEnumerable<IDomainEvent> history, long currentVersion)
         {
             foreach (var e in history)
             {
                 ApplyChange(e, false);
             }
+
+            Version = currentVersion;
         }
 
         protected override void AddEvent(IDomainEvent @event)
@@ -37,10 +39,9 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
             
             if (isNew)
             {
-                _changes.Add(@event);
+                _uncommittedEvents.Add(@event);
+                Version++;
             }
-            
-            Version++;
         }
 
         private Action<TAggregate, IDomainEvent> GetApply(IDomainEvent @event)
@@ -48,15 +49,13 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
             var thisType = typeof(TAggregate);
             var eventType = @event.GetType();
 
-            ConcurrentDictionary<Type, object> cache = null;
-
-            if (!HandlerCache.TryGetValue(thisType, out cache))
+            if (!HandlerCache.TryGetValue(thisType, out ConcurrentDictionary<Type, object> cache))
             {
                 cache = CreateCache(thisType);
                 HandlerCache[thisType] = cache;
             }
 
-            if(!cache.ContainsKey(eventType))
+            if (!cache.ContainsKey(eventType))
             {
                 throw new Exception("Apply method not found");
             }

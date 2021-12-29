@@ -3,7 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace TwentyTwenty.DomainDriven.EventSourcing
+namespace TwentyTwenty.DomainDriven.Projections
 {
     public class ProjectionStep<T, TEvent> : IProjectionStep<T, TEvent>
     {

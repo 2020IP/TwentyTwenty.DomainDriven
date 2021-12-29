@@ -1,6 +1,7 @@
 using System;
+using TwentyTwenty.DomainDriven.EventSourcing;
 
-namespace TwentyTwenty.DomainDriven.EventSourcing
+namespace TwentyTwenty.DomainDriven.Projections
 {
     public abstract class EventDescriptor<TEvent> : ICanApply, IEventDescriptor<TEvent>
         where TEvent : IDomainEvent
@@ -13,9 +14,9 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
 
         public virtual void Apply<TProjection>(TProjection state, IProjectionStepCache<TProjection> cache)
             where TProjection : class, IProjection
-        {            
+        {
             cache.StepFor<TEvent>()?.Apply(state, Data);
             cache.StepFor<IEventDescriptor<TEvent>>()?.Apply(state, this);
         }
-    }    
+    }
 }

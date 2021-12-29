@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
-using System.Reflection;
 using System.Collections.Generic;
+using TwentyTwenty.DomainDriven.EventSourcing;
 
-namespace TwentyTwenty.DomainDriven.EventSourcing
+namespace TwentyTwenty.DomainDriven.Projections
 {
     public class ProjectionStepCache<TProjection> : IProjectionStepCache<TProjection> 
         where TProjection : IProjection

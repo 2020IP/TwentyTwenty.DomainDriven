@@ -1,4 +1,4 @@
-namespace TwentyTwenty.DomainDriven.EventSourcing
+namespace TwentyTwenty.DomainDriven.Projections
 {
     public interface IProjectionStep<TProjection, TEvent>
     {

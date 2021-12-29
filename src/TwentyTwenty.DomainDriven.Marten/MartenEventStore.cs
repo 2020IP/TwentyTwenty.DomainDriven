@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Marten;
 using TwentyTwenty.DomainDriven.EventSourcing;
@@ -9,52 +10,52 @@ namespace TwentyTwenty.DomainDriven.Marten
 {
     public class MartenEventStore : IEventStore<Guid>, IDisposable
     {
-        protected readonly IDocumentSession _session;
+        private readonly IDocumentSession _session;
 
         public MartenEventStore(IDocumentSession session)
         {
             _session = session;
         }
+        
+        public async Task<StreamEvents> GetEventsForStream(Guid streamId, CancellationToken token = default)
+        {
+            var batch = _session.CreateBatchQuery();
+            var stream = batch.Events.FetchStream(streamId);
+            var state = batch.Events.FetchStreamState(streamId);
+            await batch.Execute(token);
+
+            return new StreamEvents
+            {
+                Events = stream.Result?.Select(e => (IEventDescriptor)new MartenEvent(e.Id, e.Version, e.Timestamp.UtcDateTime, e.Data as IDomainEvent)).ToList(),
+                CurrentVersion = state.Result.Version,
+                IsArchived = state.Result.IsArchived,
+            };
+        }
+
+        public void AppendEvents(Guid streamId, IEnumerable<IDomainEvent> events, long? expectedVersion = default)
+        {
+            if (expectedVersion.HasValue)
+            {
+                _session.Events.Append(streamId, expectedVersion, events);
+            }
+            else
+            {
+                _session.Events.Append(streamId, events);
+            }
+        }
+
+        public Task ArchiveStream(Guid streamId, CancellationToken token = default)
+        {
+            _session.Events.ArchiveStream(streamId);
+            return _session.SaveChangesAsync(token);
+        }
+
+        public Task CommitEvents(CancellationToken token = default)
+           =>  _session.SaveChangesAsync(token);
 
         public void Dispose()
         {
             _session.Dispose();
         }
-
-        public List<IEventDescriptor> GetEventsForAggregate(Guid aggregateId)
-        {
-            return _session.Events.FetchStream(aggregateId)
-                ?.Select(e => (IEventDescriptor)new MartenEvent(e.Id, e.Version, e.Timestamp.UtcDateTime, e.Data as IDomainEvent))
-                .ToList();
-        }
-
-        public async Task<List<IEventDescriptor>> GetEventsForAggregateAsync(Guid aggregateId)
-        {
-            var stream = await _session.Events.FetchStreamAsync(aggregateId);
-            return stream?.Select(e => (IEventDescriptor)new MartenEvent(e.Id, e.Version, e.Timestamp.UtcDateTime, e.Data as IDomainEvent)).ToList();
-        }
-
-        public void SaveEvents(Guid aggregateId, IEnumerable<IDomainEvent> events, int? expectedVersion = default)
-        {
-            _session.Events.Append(aggregateId, events.ToArray());
-            _session.SaveChanges();
-        }
-
-        public Task SaveEventsAsync(Guid aggregateId, IEnumerable<IDomainEvent> events, int? expectedVersion = default)
-        {
-            _session.Events.Append(aggregateId, events.ToArray());
-            return _session.SaveChangesAsync();
-        }
-
-        public void AppendEvents(Guid aggregateId, params IDomainEvent[] events)
-        {
-            _session.Events.Append(aggregateId, events.ToArray());
-        }
-
-        public Task CommitEventsAsync()
-           =>  _session.SaveChangesAsync();
-
-        public void CommitEvents()
-            => _session.SaveChanges();
     }
 }

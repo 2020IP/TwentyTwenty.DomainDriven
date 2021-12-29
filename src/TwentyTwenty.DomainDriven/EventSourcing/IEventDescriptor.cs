@@ -15,10 +15,4 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
     {
         new TEvent Data { get; }        
     }
-
-    public interface ICanApply 
-    {
-        void Apply<TProjection>(TProjection state, IProjectionStepCache<TProjection> cache)
-            where TProjection : class, IProjection;
-    }
 }
