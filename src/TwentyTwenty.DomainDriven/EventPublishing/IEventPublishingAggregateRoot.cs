@@ -4,8 +4,8 @@ namespace TwentyTwenty.DomainDriven.EventPublishing
 {
     public interface IEventPublishingAggregateRoot<TId> : IEntity<TId>, IAggregateRoot<TId>
     {
-        IEnumerable<IDomainEvent> GetUnpublishedEvents();
-        void MarkEventsAsPublished();
-        bool HasUnpublishedEvents { get; }
+        IEnumerable<IDomainEvent> GetUncommittedEvents();
+        void ClearUncommittedEvents();
+        bool HasUncommittedEvents { get; }
     }
 }

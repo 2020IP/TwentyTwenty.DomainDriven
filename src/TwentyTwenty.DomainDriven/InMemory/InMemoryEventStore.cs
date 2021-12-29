@@ -2,8 +2,10 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Threading;
+using TwentyTwenty.DomainDriven.EventSourcing;
 
-namespace TwentyTwenty.DomainDriven.EventSourcing
+namespace TwentyTwenty.DomainDriven.InMemory
 {
     public class InMemoryEventStore<TId> : IEventStore<TId>
     {
@@ -26,7 +28,7 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
 
         // collect all processed events for given aggregate and return them as a list
         // used to build up an aggregate from its history (Domain.LoadsFromHistory)
-        public Task<List<IEventDescriptor>> GetEventsForStream(TId aggregateId)
+        public Task<List<IEventDescriptor>> GetEventsForStream(TId aggregateId, CancellationToken token = default)
         {
             if (!_current.TryGetValue(aggregateId, out List<EventDescriptor> eventDescriptors))
             {
@@ -74,7 +76,7 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
         {
         }
 
-        public Task CommitEvents()
+        public Task CommitEvents(CancellationToken token = default)
         {
             return Task.CompletedTask;
         }

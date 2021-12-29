@@ -1,5 +1,7 @@
 using Marten;
 using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using TwentyTwenty.DomainDriven.EventPublishing;
 
@@ -7,81 +9,67 @@ namespace TwentyTwenty.DomainDriven.Marten
 {
     public class MartenEventPublishingRepository : IEventPublishingRepository<Guid>
     {
-        private readonly IDocumentSession _session;
+        private readonly IDocumentSession _database;
+        private readonly IEventPublisher _eventPublisher;
 
-        public MartenEventPublishingRepository(IDocumentSession session)
+        public MartenEventPublishingRepository(IDocumentSession database, IEventPublisher eventPublisher)
         {
-            _session = session;
+            _database = database ?? throw new ArgumentNullException(nameof(database));
+            _eventPublisher = eventPublisher;
         }
 
-        public T Save<T>(T aggregate) 
+        public Task<T> GetById<T>(Guid id, CancellationToken token = default) 
             where T : class, IEventPublishingAggregateRoot<Guid>, new()
         {
-            _session.Store(aggregate);
-            _session.SaveChanges();
-            aggregate.MarkEventsAsPublished();
-            return aggregate;
+            return _database.LoadAsync<T>(id, token);
         }
 
-        public async Task<T> SaveAsync<T>(T aggregate) 
+        public async Task Save<T>(T aggregate, CancellationToken token = default)
             where T : class, IEventPublishingAggregateRoot<Guid>, new()
         {
-            _session.Store(aggregate);
-            await _session.SaveChangesAsync();
-            aggregate.MarkEventsAsPublished();
-            return aggregate;
+            _database.Store(aggregate);
+            await _database.SaveChangesAsync(token);
+            await PublishEvents(aggregate, token);
         }
 
-        public void Save<T>(params T[] aggregates) 
+        public async Task Save<T>(IEnumerable<T> aggregates, CancellationToken token = default) 
             where T : class, IEventPublishingAggregateRoot<Guid>, new()
         {
-            _session.Store(aggregates);
-            _session.SaveChanges();
+            _database.Store(aggregates);
+            await _database.SaveChangesAsync(token);
+            await PublishEvents(aggregates, token);
+        }
 
+        public async Task Delete<T>(T aggregate, CancellationToken token = default) 
+            where T : class, IEventPublishingAggregateRoot<Guid>, new()
+        {
+            _database.Delete(aggregate);
+            await _database.SaveChangesAsync(token);
+            await PublishEvents(aggregate, token);
+        }
+
+        private async Task PublishEvents<T>(T aggregate, CancellationToken token = default)
+            where T : class, IEventPublishingAggregateRoot<Guid>, new()
+        {
+            if (_eventPublisher != null)
+            {
+                var uncommittedEvents = aggregate.GetUncommittedEvents();
+                foreach (var uncommittedEvent in uncommittedEvents)
+                {
+                    await _eventPublisher.Publish(uncommittedEvent, token);
+                }
+            }
+
+            aggregate.ClearUncommittedEvents();
+        }
+
+        private async Task PublishEvents<T>(IEnumerable<T> aggregates, CancellationToken token = default)
+            where T : class, IEventPublishingAggregateRoot<Guid>, new()
+        {
             foreach (var aggregate in aggregates)
             {
-                aggregate.MarkEventsAsPublished();
+                await PublishEvents(aggregate, token);
             }
-        }
-
-        public async Task SaveAsync<T>(params T[] aggregates) 
-            where T : class, IEventPublishingAggregateRoot<Guid>, new()
-        {
-            _session.Store(aggregates);
-            await _session.SaveChangesAsync();
-
-            foreach (var aggregate in aggregates)
-            {
-                aggregate.MarkEventsAsPublished();
-            }
-        }
-
-        public T GetById<T>(Guid id) 
-            where T : class, IEventPublishingAggregateRoot<Guid>, new()
-        {
-            return _session.Load<T>(id);
-        }
-
-        public Task<T> GetByIdAsync<T>(Guid id) 
-            where T : class, IEventPublishingAggregateRoot<Guid>, new()
-        {
-            return _session.LoadAsync<T>(id);
-        }
-
-        public void Delete<T>(T aggregate) 
-            where T : class, IEventPublishingAggregateRoot<Guid>, new()
-        {
-            _session.Delete(aggregate);
-            _session.SaveChanges();
-            aggregate.MarkEventsAsPublished();
-        }
-
-        public async Task DeleteAsync<T>(T aggregate) 
-            where T : class, IEventPublishingAggregateRoot<Guid>, new()
-        {
-            _session.Delete(aggregate);
-            await _session.SaveChangesAsync();
-            aggregate.MarkEventsAsPublished();
         }
     }
 }

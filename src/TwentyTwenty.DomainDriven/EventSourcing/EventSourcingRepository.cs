@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using TwentyTwenty.DomainDriven.EventPublishing;
 
 namespace TwentyTwenty.DomainDriven.EventSourcing
 {
@@ -16,82 +18,78 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
             _eventPublisher = eventPublisher;
         }
 
-        public virtual async Task<T> GetById<T>(TId id) 
+        public virtual async Task<T> GetById<T>(TId id, CancellationToken token = default) 
             where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
-            var events = await _eventStore.GetEventsForStream(id);            
+            var events = await _eventStore.GetEventsForStream(id, token);            
             return Replay<T>(events);
         }
 
-        public virtual async Task Save<T>(T aggregate, int? expectedVersion = default) 
+        public virtual async Task Save<T>(T aggregate, int? expectedVersion = default, CancellationToken token = default) 
             where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
-            var unpublishedEvents = aggregate.GetUnpublishedEvents();
-            _eventStore.AppendEvents(aggregate.Id, unpublishedEvents, expectedVersion);
-            await _eventStore.CommitEvents();
-
-            //await PublishEvents(unpublishedEvents);
-            aggregate.MarkEventsAsPublished();
+            _eventStore.AppendEvents(aggregate.Id, aggregate.GetUncommittedEvents(), expectedVersion);
+            await _eventStore.CommitEvents(token);
+            await PublishEvents(aggregate, token);
         }
 
-        public virtual async Task Save<T>(params T[] aggregates)
+        public virtual async Task Save<T>(IEnumerable<T> aggregates, CancellationToken token = default)
             where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
             foreach (var aggregate in aggregates)
             {
-                _eventStore.AppendEvents(aggregate.Id, aggregate.GetUnpublishedEvents());
+                _eventStore.AppendEvents(aggregate.Id, aggregate.GetUncommittedEvents());
             }
 
-            await _eventStore.CommitEvents();
-
-            foreach (var aggregate in aggregates)
-            {
-                aggregate.MarkEventsAsPublished();
-            }
+            await _eventStore.CommitEvents(token);
+            await PublishEvents(aggregates, token);
         }
 
-        public virtual async Task SaveAndArchive<T>(T aggregate, int? expectedVersion = default) 
+        public virtual async Task SaveAndArchive<T>(T aggregate, int? expectedVersion = default, CancellationToken token = default) 
             where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
-            _eventStore.AppendEvents(aggregate.Id, aggregate.GetUnpublishedEvents(), expectedVersion);
+            _eventStore.AppendEvents(aggregate.Id, aggregate.GetUncommittedEvents(), expectedVersion);
             _eventStore.ArchiveStream(aggregate.Id);
-            await _eventStore.CommitEvents();
-            aggregate.MarkEventsAsPublished();
+            await _eventStore.CommitEvents(token);
+            await PublishEvents(aggregate, token);
         }
 
-        public virtual async Task SaveAndArchive<T>(params T[] aggregates)
+        public virtual async Task SaveAndArchive<T>(IEnumerable<T> aggregates, CancellationToken token = default)
             where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
             foreach (var aggregate in aggregates)
             {
-                _eventStore.AppendEvents(aggregate.Id, aggregate.GetUnpublishedEvents());
+                _eventStore.AppendEvents(aggregate.Id, aggregate.GetUncommittedEvents());
                 _eventStore.ArchiveStream(aggregate.Id);
             }
 
-            await _eventStore.CommitEvents();
-
-            foreach (var aggregate in aggregates)
-            {
-                aggregate.MarkEventsAsPublished();
-            }
+            await _eventStore.CommitEvents(token);
+            await PublishEvents(aggregates, token);
         }
 
-        // private async Task PublishEvents<T>(params T[] aggregates)
-        //     where T : class, IEventSourcingAggregateRoot<TId>, new()
-        // {
-        //     if (_eventPublisher != null)
-        //     {
-        //         foreach (var aggregate in aggregates)
-        //         {
-        //             var unpublishedEvents = aggregate.GetUnpublishedEvents();
-        //             foreach ( var unpub in unpubEvents)
-        //             {
-        //                 await context.Publish(unpub);
-        //             }
-        //             await _eventPublisher.Publish(unpublishedEvent, unpublishedEvent.GetType());
-        //         }
-        //     }
-        // }
+        private async Task PublishEvents<T>(T aggregate, CancellationToken token = default)
+            where T : class, IEventSourcingAggregateRoot<TId>, new()
+        {
+            if (_eventPublisher != null)
+            {
+                var uncommittedEvents = aggregate.GetUncommittedEvents();
+                foreach (var uncommittedEvent in uncommittedEvents)
+                {
+                    await _eventPublisher.Publish(uncommittedEvent, token);
+                }
+            }
+
+            aggregate.ClearUncommittedEvents();
+        }
+
+        private async Task PublishEvents<T>(IEnumerable<T> aggregates, CancellationToken token = default)
+            where T : class, IEventSourcingAggregateRoot<TId>, new()
+        {
+            foreach (var aggregate in aggregates)
+            {
+                await PublishEvents(aggregate, token);
+            }
+        }
 
         private T Replay<T>(IEnumerable<IEventDescriptor> events) 
             where T : IEventSourcingAggregateRoot<TId>, new()

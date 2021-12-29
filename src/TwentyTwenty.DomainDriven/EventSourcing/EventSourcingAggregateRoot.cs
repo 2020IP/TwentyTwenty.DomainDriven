@@ -37,7 +37,7 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
             
             if (isNew)
             {
-                _changes.Add(@event);
+                _uncommittedEvents.Add(@event);
             }
             
             Version++;

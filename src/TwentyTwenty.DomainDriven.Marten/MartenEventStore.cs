@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Marten;
 using TwentyTwenty.DomainDriven.EventSourcing;
@@ -16,9 +17,9 @@ namespace TwentyTwenty.DomainDriven.Marten
             _session = session;
         }
         
-        public async Task<List<IEventDescriptor>> GetEventsForStream(Guid streamId)
+        public async Task<List<IEventDescriptor>> GetEventsForStream(Guid streamId, CancellationToken token = default)
         {
-            var stream = await _session.Events.FetchStreamAsync(streamId);
+            var stream = await _session.Events.FetchStreamAsync(streamId, token: token);
             return stream?.Select(e => (IEventDescriptor)new MartenEvent(e.Id, e.Version, e.Timestamp.UtcDateTime, e.Data as IDomainEvent)).ToList();
         }
 
@@ -39,8 +40,8 @@ namespace TwentyTwenty.DomainDriven.Marten
             _session.Events.ArchiveStream(streamId);
         }
 
-        public Task CommitEvents()
-           =>  _session.SaveChangesAsync();
+        public Task CommitEvents(CancellationToken token = default)
+           =>  _session.SaveChangesAsync(token);
 
         public void Dispose()
         {

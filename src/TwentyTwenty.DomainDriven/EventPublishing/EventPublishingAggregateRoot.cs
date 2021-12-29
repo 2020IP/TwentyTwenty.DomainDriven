@@ -5,12 +5,12 @@ namespace TwentyTwenty.DomainDriven.EventPublishing
 {
     public abstract class EventPublishingAggregateRoot<TId> : Entity<TId>, IEventPublishingAggregateRoot<TId>
     {
-        protected readonly List<IDomainEvent> _changes = new List<IDomainEvent>();
-        protected virtual void AddEvent(IDomainEvent @event) => _changes.Add(@event);
+        protected readonly List<IDomainEvent> _uncommittedEvents = new List<IDomainEvent>();
+        protected virtual void AddEvent(IDomainEvent @event) => _uncommittedEvents.Add(@event);
         
         [IgnoreDataMember]
-        public virtual bool HasUnpublishedEvents => _changes.Count > 0;
-        public virtual IEnumerable<IDomainEvent> GetUnpublishedEvents() => _changes;
-        public virtual void MarkEventsAsPublished() => _changes.Clear();
+        public virtual bool HasUncommittedEvents => _uncommittedEvents.Count > 0;
+        public virtual IEnumerable<IDomainEvent> GetUncommittedEvents() => _uncommittedEvents;
+        public virtual void ClearUncommittedEvents() => _uncommittedEvents.Clear();
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using MassTransit;
 
@@ -13,14 +14,14 @@ namespace TwentyTwenty.DomainDriven.MassTransit
             _publishEndpoint = publishEndpoint;
         }
 
-        public Task Publish(IDomainEvent @event, Type eventType)
+        public Task Publish(IDomainEvent @event, Type eventType, CancellationToken token = default)
         {
-            return _publishEndpoint.Publish(@event, eventType);
+            return _publishEndpoint.Publish(@event, eventType, token);
         }
 
-        public Task Publish(IDomainEvent @event)
+        public Task Publish(IDomainEvent @event, CancellationToken token = default)
         {
-            return _publishEndpoint.Publish(@event);
+            return _publishEndpoint.Publish(@event, token);
         }
     }
 }

@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using TwentyTwenty.DomainDriven.CQRS;
+using TwentyTwenty.DomainDriven.EventPublishing;
 
-namespace TwentyTwenty.DomainDriven.CQRS
+namespace TwentyTwenty.DomainDriven.InMemory
 {
     public class InProcessBus : 
         ICommandSender, 
@@ -36,10 +39,10 @@ namespace TwentyTwenty.DomainDriven.CQRS
             handlers.Add(x => handler((T)x).ContinueWith(r => (object)r.Result));
         }
 
-        public Task Send(ICommand command)
-            => Send(command, command.GetType());
+        public Task Send(ICommand command, CancellationToken token = default)
+            => Send(command, command.GetType(), token);
 
-        public Task Send(ICommand command, Type commandType)
+        public Task Send(ICommand command, Type commandType, CancellationToken token = default)
         {
             if (_routes.TryGetValue(commandType, out List<Action<IMessage>> handlers))
             {
@@ -55,11 +58,11 @@ namespace TwentyTwenty.DomainDriven.CQRS
             }
         }
 
-        public Task<TResult> Send<TResult>(ICommand command)
+        public Task<TResult> Send<TResult>(ICommand command, CancellationToken token = default)
             where TResult : class, IResponse
-            => Send<TResult>(command, command.GetType());
+            => Send<TResult>(command, command.GetType(), token);
 
-        public Task<TResult> Send<TResult>(ICommand command, Type commandType)
+        public Task<TResult> Send<TResult>(ICommand command, Type commandType, CancellationToken token = default)
             where TResult : class, IResponse
         {
             if (_responseRoutes.TryGetValue(commandType, out List<Func<IMessage, Task<object>>> handlers))
@@ -73,10 +76,10 @@ namespace TwentyTwenty.DomainDriven.CQRS
             throw new InvalidOperationException("No handler registered");
         }
 
-        public Task Publish(IDomainEvent @event)
-            => Publish(@event, @event.GetType());
+        public Task Publish(IDomainEvent @event, CancellationToken token = default)
+            => Publish(@event, @event.GetType(), token);
 
-        public Task Publish(IDomainEvent @event, Type eventType)
+        public Task Publish(IDomainEvent @event, Type eventType, CancellationToken token = default)
         {
             if (!_routes.TryGetValue(eventType, out List<Action<IMessage>> handlers))
             {
