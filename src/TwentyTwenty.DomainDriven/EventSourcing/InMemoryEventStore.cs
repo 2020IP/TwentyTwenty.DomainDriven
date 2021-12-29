@@ -7,8 +7,6 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
 {
     public class InMemoryEventStore<TId> : IEventStore<TId>
     {
-        private readonly IEventPublisher _publisher;
-
         private class EventDescriptor
         {
             public IDomainEvent Data { get; }
@@ -23,31 +21,22 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
                 Id = id;
             }
         }
-        
-        public InMemoryEventStore(IEventPublisher publisher)
-        {
-            _publisher = publisher;
-        }
 
         private readonly Dictionary<TId, List<EventDescriptor>> _current = new Dictionary<TId, List<EventDescriptor>>();
 
         // collect all processed events for given aggregate and return them as a list
         // used to build up an aggregate from its history (Domain.LoadsFromHistory)
-        public  List<IEventDescriptor> GetEventsForStream(TId aggregateId)
+        public Task<List<IEventDescriptor>> GetEventsForStream(TId aggregateId)
         {
             if (!_current.TryGetValue(aggregateId, out List<EventDescriptor> eventDescriptors))
             {
                 throw new AggregateNotFoundException();
             }
 
-            return eventDescriptors
+            var events = eventDescriptors
                 .Cast<IEventDescriptor>()
                 .ToList();
-        }
 
-        public Task<List<IEventDescriptor>> GetEventsForStreamAsync(TId aggregateId)
-        {
-            var events = GetEventsForStream(aggregateId);
             return Task.FromResult(events);
         }
 
@@ -78,9 +67,6 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
 
                 // push event to the event descriptors list for current aggregate
                 eventDescriptors.Add(new EventDescriptor(aggregateId, @event, i));
-
-                // publish current event to the bus for further processing by subscribers
-                _publisher.Publish(@event);
             }
         }
 
@@ -88,13 +74,9 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
         {
         }
 
-        public Task CommitEventsAsync()
+        public Task CommitEvents()
         {
             return Task.CompletedTask;
-        }
-
-        public void CommitEvents()
-        {
         }
     }
 }

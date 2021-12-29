@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using TwentyTwenty.DomainDriven.EventSourcing;
 
-namespace TwentyTwenty.DomainDriven.EventSourcing
+namespace TwentyTwenty.DomainDriven.Projections
 {
     public interface IProjection
     {

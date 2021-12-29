@@ -9,21 +9,14 @@ namespace TwentyTwenty.DomainDriven.Marten
 {
     public class MartenEventStore : IEventStore<Guid>, IDisposable
     {
-        protected readonly IDocumentSession _session;
+        private readonly IDocumentSession _session;
 
         public MartenEventStore(IDocumentSession session)
         {
             _session = session;
         }
-
-        public List<IEventDescriptor> GetEventsForStream(Guid streamId)
-        {
-            return _session.Events.FetchStream(streamId)
-                ?.Select(e => (IEventDescriptor)new MartenEvent(e.Id, e.Version, e.Timestamp.UtcDateTime, e.Data as IDomainEvent))
-                .ToList();
-        }
-
-        public async Task<List<IEventDescriptor>> GetEventsForStreamAsync(Guid streamId)
+        
+        public async Task<List<IEventDescriptor>> GetEventsForStream(Guid streamId)
         {
             var stream = await _session.Events.FetchStreamAsync(streamId);
             return stream?.Select(e => (IEventDescriptor)new MartenEvent(e.Id, e.Version, e.Timestamp.UtcDateTime, e.Data as IDomainEvent)).ToList();
@@ -46,11 +39,8 @@ namespace TwentyTwenty.DomainDriven.Marten
             _session.Events.ArchiveStream(streamId);
         }
 
-        public Task CommitEventsAsync()
+        public Task CommitEvents()
            =>  _session.SaveChangesAsync();
-
-        public void CommitEvents()
-            => _session.SaveChanges();
 
         public void Dispose()
         {

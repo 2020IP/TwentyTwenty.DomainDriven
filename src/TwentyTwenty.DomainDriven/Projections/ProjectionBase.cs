@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using TwentyTwenty.DomainDriven.EventSourcing;
 
-namespace TwentyTwenty.DomainDriven.EventSourcing
+namespace TwentyTwenty.DomainDriven.Projections
 {
     public abstract class ProjectionBase<T> : IProjection
         where T : class, IProjection

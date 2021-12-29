@@ -1,6 +1,7 @@
 using System;
+using TwentyTwenty.DomainDriven.EventSourcing;
 
-namespace TwentyTwenty.DomainDriven.EventSourcing
+namespace TwentyTwenty.DomainDriven.Projections
 {
     public abstract class EventDescriptor<TEvent> : ICanApply, IEventDescriptor<TEvent>
         where TEvent : IDomainEvent
