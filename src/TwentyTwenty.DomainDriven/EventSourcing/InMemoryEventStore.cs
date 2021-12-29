@@ -33,7 +33,7 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
 
         // collect all processed events for given aggregate and return them as a list
         // used to build up an aggregate from its history (Domain.LoadsFromHistory)
-        public  List<IEventDescriptor> GetEventsForAggregate(TId aggregateId)
+        public  List<IEventDescriptor> GetEventsForStream(TId aggregateId)
         {
             if (!_current.TryGetValue(aggregateId, out List<EventDescriptor> eventDescriptors))
             {
@@ -45,9 +45,9 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
                 .ToList();
         }
 
-        public Task<List<IEventDescriptor>> GetEventsForAggregateAsync(TId aggregateId)
+        public Task<List<IEventDescriptor>> GetEventsForStreamAsync(TId aggregateId)
         {
-            var events = GetEventsForAggregate(aggregateId);
+            var events = GetEventsForStream(aggregateId);
             return Task.FromResult(events);
         }
 
@@ -84,9 +84,8 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
             }
         }
 
-        public void ArchiveAggregate(TId aggregateId)
+        public void ArchiveStream(TId aggregateId)
         {
-            throw new NotImplementedException();
         }
 
         public Task CommitEventsAsync()

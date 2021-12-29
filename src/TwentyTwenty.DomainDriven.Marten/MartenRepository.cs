@@ -70,7 +70,7 @@ namespace TwentyTwenty.DomainDriven.Marten
             where T : class, IEventSourcingAggregateRoot<Guid>, new()
         {
             AppendEvents(aggregate.Id, aggregate.GetUnpublishedEvents(), expectedVersion);
-            ArchiveAggregate(aggregate.Id);
+            ArchiveStream(aggregate.Id);
             CommitEvents();
 
             aggregate.MarkEventsAsPublished();
@@ -80,11 +80,45 @@ namespace TwentyTwenty.DomainDriven.Marten
             where T : class, IEventSourcingAggregateRoot<Guid>, new()
         {
             AppendEvents(aggregate.Id, aggregate.GetUnpublishedEvents(), expectedVersion);
-            ArchiveAggregate(aggregate.Id);
+            ArchiveStream(aggregate.Id);
 
             await CommitEventsAsync();
 
             aggregate.MarkEventsAsPublished();
+        }
+
+        public void SaveAndArchive<T>(params T[] aggregates)
+            where T : class, IEventSourcingAggregateRoot<Guid>, new()
+        {
+            foreach (var aggregate in aggregates)
+            {
+                AppendEvents(aggregate.Id, aggregate.GetUnpublishedEvents());
+                ArchiveStream(aggregate.Id);
+            }
+
+            CommitEvents();
+
+            foreach (var aggregate in aggregates)
+            {
+                aggregate.MarkEventsAsPublished();
+            }
+        }
+
+        public async Task SaveAndArchiveAsync<T>(params T[] aggregates)
+            where T : class, IEventSourcingAggregateRoot<Guid>, new()
+        {
+            foreach (var aggregate in aggregates)
+            {
+                AppendEvents(aggregate.Id, aggregate.GetUnpublishedEvents());
+                ArchiveStream(aggregate.Id);
+            }
+
+            await CommitEventsAsync();
+
+            foreach (var aggregate in aggregates)
+            {
+                aggregate.MarkEventsAsPublished();
+            }
         }
     }
 }

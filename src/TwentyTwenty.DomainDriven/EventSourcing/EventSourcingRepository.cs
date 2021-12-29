@@ -17,50 +17,114 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
         public void Save<T>(T aggregate, int? expectedVersion = null) 
             where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
-            var changes = aggregate.GetUnpublishedEvents();
-            _eventStore.AppendEvents(aggregate.Id, changes, expectedVersion);
+            _eventStore.AppendEvents(aggregate.Id, aggregate.GetUnpublishedEvents(), expectedVersion);
             _eventStore.CommitEvents();
+            aggregate.MarkEventsAsPublished();
+        }
+
+        public async Task SaveAsync<T>(T aggregate, int? expectedVersion = default) 
+            where T : class, IEventSourcingAggregateRoot<TId>, new()
+        {
+            _eventStore.AppendEvents(aggregate.Id, aggregate.GetUnpublishedEvents(), expectedVersion);
+            await _eventStore.CommitEventsAsync();
             aggregate.MarkEventsAsPublished();
         }
 
         public void Save<T>(params T[] aggregates)
             where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
-            foreach (var aggregate in aggregates.DefaultIfEmpty())
+            foreach (var aggregate in aggregates)
             {
-                Save(aggregate);
+                _eventStore.AppendEvents(aggregate.Id, aggregate.GetUnpublishedEvents());
             }
-        }
 
-        public async Task SaveAsync<T>(T aggregate, int? expectedVersion = default) 
-            where T : class, IEventSourcingAggregateRoot<TId>, new()
-        {
-            var changes = aggregate.GetUnpublishedEvents();
-            _eventStore.AppendEvents(aggregate.Id, changes, expectedVersion);
-            await _eventStore.CommitEventsAsync();
-            aggregate.MarkEventsAsPublished();;
+            _eventStore.CommitEvents();
+
+            foreach (var aggregate in aggregates)
+            {
+                aggregate.MarkEventsAsPublished();
+            }
         }
 
         public async Task SaveAsync<T>(params T[] aggregates)
             where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
-            foreach (var aggregate in aggregates.DefaultIfEmpty())
+            foreach (var aggregate in aggregates)
             {
-                await SaveAsync(aggregate);
+                _eventStore.AppendEvents(aggregate.Id, aggregate.GetUnpublishedEvents());
+            }
+
+            await _eventStore.CommitEventsAsync();
+
+            foreach (var aggregate in aggregates)
+            {
+                aggregate.MarkEventsAsPublished();
+            }
+        }
+
+        public void SaveAndArchive<T>(T aggregate, int? expectedVersion = null) 
+            where T : class, IEventSourcingAggregateRoot<TId>, new()
+        {
+            _eventStore.AppendEvents(aggregate.Id, aggregate.GetUnpublishedEvents(), expectedVersion);
+            _eventStore.ArchiveStream(aggregate.Id);
+            _eventStore.CommitEvents();
+            aggregate.MarkEventsAsPublished();
+        }
+
+        public async Task SaveAndArchiveAsync<T>(T aggregate, int? expectedVersion = default) 
+            where T : class, IEventSourcingAggregateRoot<TId>, new()
+        {
+            _eventStore.AppendEvents(aggregate.Id, aggregate.GetUnpublishedEvents(), expectedVersion);
+            _eventStore.ArchiveStream(aggregate.Id);
+            await _eventStore.CommitEventsAsync();
+            aggregate.MarkEventsAsPublished();
+        }
+
+        public void SaveAndArchive<T>(params T[] aggregates)
+            where T : class, IEventSourcingAggregateRoot<TId>, new()
+        {
+            foreach (var aggregate in aggregates)
+            {
+                _eventStore.AppendEvents(aggregate.Id, aggregate.GetUnpublishedEvents());
+                _eventStore.ArchiveStream(aggregate.Id);
+            }
+
+            _eventStore.CommitEvents();
+
+            foreach (var aggregate in aggregates)
+            {
+                aggregate.MarkEventsAsPublished();
+            }
+        }
+
+        public async Task SaveAndArchiveAsync<T>(params T[] aggregates)
+            where T : class, IEventSourcingAggregateRoot<TId>, new()
+        {
+            foreach (var aggregate in aggregates)
+            {
+                _eventStore.AppendEvents(aggregate.Id, aggregate.GetUnpublishedEvents());
+                _eventStore.ArchiveStream(aggregate.Id);
+            }
+
+            await _eventStore.CommitEventsAsync();
+
+            foreach (var aggregate in aggregates)
+            {
+                aggregate.MarkEventsAsPublished();
             }
         }
 
         public T GetById<T>(TId id) 
             where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
-            var events = _eventStore.GetEventsForAggregate(id);
+            var events = _eventStore.GetEventsForStream(id);
             return Replay<T>(events);
         }
 
         public async Task<T> GetByIdAsync<T>(TId id) 
             where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
-            var events = await _eventStore.GetEventsForAggregateAsync(id);            
+            var events = await _eventStore.GetEventsForStreamAsync(id);            
             return Replay<T>(events);
         }
 

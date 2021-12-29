@@ -5,10 +5,10 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
 {
     public interface IEventStore<TId>
     {
-        void AppendEvents(TId aggregateId, IEnumerable<IDomainEvent> events, int? expectedVersion = default);
-        void ArchiveAggregate(TId aggregateId);
-        List<IEventDescriptor> GetEventsForAggregate(TId aggregateId);
-        Task<List<IEventDescriptor>> GetEventsForAggregateAsync(TId aggregateId);
+        void AppendEvents(TId streamId, IEnumerable<IDomainEvent> events, int? expectedVersion = default);
+        void ArchiveStream(TId streamId);
+        List<IEventDescriptor> GetEventsForStream(TId streamId);
+        Task<List<IEventDescriptor>> GetEventsForStreamAsync(TId streamId);
         Task CommitEventsAsync();
         void CommitEvents();
     }

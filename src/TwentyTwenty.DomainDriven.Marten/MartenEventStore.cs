@@ -16,39 +16,34 @@ namespace TwentyTwenty.DomainDriven.Marten
             _session = session;
         }
 
-        public void Dispose()
+        public List<IEventDescriptor> GetEventsForStream(Guid streamId)
         {
-            _session.Dispose();
-        }
-
-        public List<IEventDescriptor> GetEventsForAggregate(Guid aggregateId)
-        {
-            return _session.Events.FetchStream(aggregateId)
+            return _session.Events.FetchStream(streamId)
                 ?.Select(e => (IEventDescriptor)new MartenEvent(e.Id, e.Version, e.Timestamp.UtcDateTime, e.Data as IDomainEvent))
                 .ToList();
         }
 
-        public async Task<List<IEventDescriptor>> GetEventsForAggregateAsync(Guid aggregateId)
+        public async Task<List<IEventDescriptor>> GetEventsForStreamAsync(Guid streamId)
         {
-            var stream = await _session.Events.FetchStreamAsync(aggregateId);
+            var stream = await _session.Events.FetchStreamAsync(streamId);
             return stream?.Select(e => (IEventDescriptor)new MartenEvent(e.Id, e.Version, e.Timestamp.UtcDateTime, e.Data as IDomainEvent)).ToList();
         }
 
-        public void AppendEvents(Guid aggregateId, IEnumerable<IDomainEvent> events, int? expectedVersion = default)
+        public void AppendEvents(Guid streamId, IEnumerable<IDomainEvent> events, int? expectedVersion = default)
         {
             if (expectedVersion.HasValue)
             {
-                _session.Events.Append(aggregateId, expectedVersion, events);
+                _session.Events.Append(streamId, expectedVersion, events);
             }
             else
             {
-                _session.Events.Append(aggregateId, events);
+                _session.Events.Append(streamId, events);
             }
         }
 
-        public void ArchiveAggregate(Guid aggregateId)
+        public void ArchiveStream(Guid streamId)
         {
-            _session.Events.ArchiveStream(aggregateId);
+            _session.Events.ArchiveStream(streamId);
         }
 
         public Task CommitEventsAsync()
@@ -56,5 +51,10 @@ namespace TwentyTwenty.DomainDriven.Marten
 
         public void CommitEvents()
             => _session.SaveChanges();
+
+        public void Dispose()
+        {
+            _session.Dispose();
+        }
     }
 }
