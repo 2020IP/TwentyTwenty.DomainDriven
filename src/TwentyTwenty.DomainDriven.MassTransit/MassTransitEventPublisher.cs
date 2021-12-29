@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MassTransit;
+using TwentyTwenty.DomainDriven.EventPublishing;
 
 namespace TwentyTwenty.DomainDriven.MassTransit
 {
