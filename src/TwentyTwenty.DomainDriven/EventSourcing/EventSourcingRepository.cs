@@ -21,14 +21,23 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
         public virtual async Task<T> GetById<T>(TId id, CancellationToken token = default) 
             where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
-            var events = await _eventStore.GetEventsForStream(id, token);            
-            return Replay<T>(events);
+            var streamEvents = await _eventStore.GetEventsForStream(id, token);            
+            return Replay<T>(streamEvents.Events, streamEvents.CurrentVersion);
         }
 
-        public virtual async Task Save<T>(T aggregate, int? expectedVersion = default, CancellationToken token = default) 
+         public virtual async Task Save<T>(T aggregate, CancellationToken token = default) 
             where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
-            _eventStore.AppendEvents(aggregate.Id, aggregate.GetUncommittedEvents(), expectedVersion);
+            _eventStore.AppendEvents(aggregate.Id, aggregate.GetUncommittedEvents());
+            await _eventStore.CommitEvents(token);
+            await PublishEvents(aggregate, token);
+        }
+
+        public virtual async Task SaveOptimistic<T>(T aggregate, CancellationToken token = default) 
+            where T : class, IEventSourcingAggregateRoot<TId>, new()
+        {
+            var uncommittedEvents = aggregate.GetUncommittedEvents();
+            _eventStore.AppendEvents(aggregate.Id, uncommittedEvents, aggregate.Version + uncommittedEvents.Count);
             await _eventStore.CommitEvents(token);
             await PublishEvents(aggregate, token);
         }
@@ -45,26 +54,23 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
             await PublishEvents(aggregates, token);
         }
 
-        public virtual async Task SaveAndArchive<T>(T aggregate, int? expectedVersion = default, CancellationToken token = default) 
-            where T : class, IEventSourcingAggregateRoot<TId>, new()
-        {
-            _eventStore.AppendEvents(aggregate.Id, aggregate.GetUncommittedEvents(), expectedVersion);
-            _eventStore.ArchiveStream(aggregate.Id);
-            await _eventStore.CommitEvents(token);
-            await PublishEvents(aggregate, token);
-        }
-
-        public virtual async Task SaveAndArchive<T>(IEnumerable<T> aggregates, CancellationToken token = default)
+        public virtual async Task SaveOptimistic<T>(IEnumerable<T> aggregates, CancellationToken token = default)
             where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
             foreach (var aggregate in aggregates)
             {
-                _eventStore.AppendEvents(aggregate.Id, aggregate.GetUncommittedEvents());
-                _eventStore.ArchiveStream(aggregate.Id);
+                var uncommittedEvents = aggregate.GetUncommittedEvents();
+                _eventStore.AppendEvents(aggregate.Id, uncommittedEvents, aggregate.Version + uncommittedEvents.Count);
             }
 
             await _eventStore.CommitEvents(token);
             await PublishEvents(aggregates, token);
+        }
+
+        public virtual async Task Archive<T>(T aggregate, CancellationToken token = default) 
+            where T : class, IEventSourcingAggregateRoot<TId>, new()
+        {
+            await _eventStore.ArchiveStream(aggregate.Id, token);
         }
 
         protected async Task PublishEvents<T>(T aggregate, CancellationToken token = default)
@@ -91,18 +97,18 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
             }
         }
 
-        private T Replay<T>(IEnumerable<IEventDescriptor> events) 
+        private T Replay<T>(IEnumerable<IEventDescriptor> events, long currentVersion) 
             where T : IEventSourcingAggregateRoot<TId>, new()
         {
-            var obj = new T();
+            var aggregate = new T();
 
             if (!events.Any())
             {
                 throw new AggregateNotFoundException();   
             }
 
-            obj.LoadChangesFromHistory(events.Select(e => e.Data));
-            return obj;
+            aggregate.LoadChangesFromHistory(events.Select(e => e.Data), currentVersion);
+            return aggregate;
         }
     }
 }

@@ -17,13 +17,22 @@ namespace TwentyTwenty.DomainDriven.Marten
             _session = session;
         }
         
-        public async Task<List<IEventDescriptor>> GetEventsForStream(Guid streamId, CancellationToken token = default)
+        public async Task<StreamEvents> GetEventsForStream(Guid streamId, CancellationToken token = default)
         {
-            var stream = await _session.Events.FetchStreamAsync(streamId, token: token);
-            return stream?.Select(e => (IEventDescriptor)new MartenEvent(e.Id, e.Version, e.Timestamp.UtcDateTime, e.Data as IDomainEvent)).ToList();
+            var batch = _session.CreateBatchQuery();
+            var stream = batch.Events.FetchStream(streamId);
+            var state = batch.Events.FetchStreamState(streamId);
+            await batch.Execute(token);
+
+            return new StreamEvents
+            {
+                Events = stream.Result?.Select(e => (IEventDescriptor)new MartenEvent(e.Id, e.Version, e.Timestamp.UtcDateTime, e.Data as IDomainEvent)).ToList(),
+                CurrentVersion = state.Result.Version,
+                IsArchived = state.Result.IsArchived,
+            };
         }
 
-        public void AppendEvents(Guid streamId, IEnumerable<IDomainEvent> events, int? expectedVersion = default)
+        public void AppendEvents(Guid streamId, IEnumerable<IDomainEvent> events, long? expectedVersion = default)
         {
             if (expectedVersion.HasValue)
             {
@@ -35,9 +44,10 @@ namespace TwentyTwenty.DomainDriven.Marten
             }
         }
 
-        public void ArchiveStream(Guid streamId)
+        public Task ArchiveStream(Guid streamId, CancellationToken token = default)
         {
             _session.Events.ArchiveStream(streamId);
+            return _session.SaveChangesAsync(token);
         }
 
         public Task CommitEvents(CancellationToken token = default)

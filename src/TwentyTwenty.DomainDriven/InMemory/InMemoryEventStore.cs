@@ -14,9 +14,9 @@ namespace TwentyTwenty.DomainDriven.InMemory
             public IDomainEvent Data { get; }
             public DateTime TimeStamp { get; set; }
             public TId Id { get; }
-            public int Version { get; }
+            public long Version { get; }
             
-            public EventDescriptor(TId id, IDomainEvent eventData, int version)
+            public EventDescriptor(TId id, IDomainEvent eventData, long version)
             {
                 Data = eventData;
                 Version = version;
@@ -28,7 +28,7 @@ namespace TwentyTwenty.DomainDriven.InMemory
 
         // collect all processed events for given aggregate and return them as a list
         // used to build up an aggregate from its history (Domain.LoadsFromHistory)
-        public Task<List<IEventDescriptor>> GetEventsForStream(TId aggregateId, CancellationToken token = default)
+        public Task<StreamEvents> GetEventsForStream(TId aggregateId, CancellationToken token = default)
         {
             if (!_current.TryGetValue(aggregateId, out List<EventDescriptor> eventDescriptors))
             {
@@ -39,10 +39,14 @@ namespace TwentyTwenty.DomainDriven.InMemory
                 .Cast<IEventDescriptor>()
                 .ToList();
 
-            return Task.FromResult(events);
+            return Task.FromResult(new StreamEvents
+            {
+                Events = events,
+                CurrentVersion = events.Count,
+            });
         }
 
-        public void AppendEvents(TId aggregateId, IEnumerable<IDomainEvent> events, int? expectedVersion = null)
+        public void AppendEvents(TId aggregateId, IEnumerable<IDomainEvent> events, long? expectedVersion = null)
         {
             // try to get event descriptors list for given aggregate id
             // otherwise -> create empty dictionary
@@ -72,8 +76,9 @@ namespace TwentyTwenty.DomainDriven.InMemory
             }
         }
 
-        public void ArchiveStream(TId aggregateId)
+        public Task ArchiveStream(TId aggregateId, CancellationToken token = default)
         {
+            return Task.CompletedTask;
         }
 
         public Task CommitEvents(CancellationToken token = default)

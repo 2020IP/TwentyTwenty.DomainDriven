@@ -10,7 +10,7 @@ namespace TwentyTwenty.DomainDriven.EventPublishing
         
         [IgnoreDataMember]
         public virtual bool HasUncommittedEvents => _uncommittedEvents.Count > 0;
-        public virtual IEnumerable<IDomainEvent> GetUncommittedEvents() => _uncommittedEvents;
+        public virtual IList<IDomainEvent> GetUncommittedEvents() => _uncommittedEvents;
         public virtual void ClearUncommittedEvents() => _uncommittedEvents.Clear();
     }
 }
