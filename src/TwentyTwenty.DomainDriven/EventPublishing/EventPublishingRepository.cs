@@ -34,7 +34,7 @@ namespace TwentyTwenty.DomainDriven.Marten
                 var uncommittedEvents = aggregate.GetUncommittedEvents();
                 foreach (var uncommittedEvent in uncommittedEvents)
                 {
-                    await _eventPublisher.Publish(uncommittedEvent, token);
+                    await _eventPublisher.Publish(uncommittedEvent, uncommittedEvent.GetType(), token);
                 }
             }
 
