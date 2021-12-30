@@ -78,7 +78,7 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
             {
                 foreach (var uncommittedEvent in aggregate.GetUncommittedEvents())
                 {
-                    await _eventPublisher.Publish(uncommittedEvent, token);
+                    await _eventPublisher.Publish(uncommittedEvent, uncommittedEvent.GetType(), token);
                 }
             }
 
