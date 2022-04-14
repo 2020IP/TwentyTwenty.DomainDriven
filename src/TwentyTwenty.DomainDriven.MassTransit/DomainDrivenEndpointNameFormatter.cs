@@ -1,7 +1,4 @@
 using MassTransit;
-using MassTransit.Courier;
-using MassTransit.Definition;
-using MassTransit.Saga;
 using TwentyTwenty.DomainDriven.CQRS;
 
 namespace TwentyTwenty.DomainDriven.MassTransit
@@ -11,6 +8,8 @@ namespace TwentyTwenty.DomainDriven.MassTransit
         public DomainDrivenEndpointNameFormatter()
         {
         }
+
+        public string Separator => string.Empty;
 
         public string TemporaryEndpoint(string tag)
         {

@@ -20,7 +20,7 @@ namespace TwentyTwenty.DomainDriven.MassTransit
                 var info = t.GetTypeInfo();
                 return !info.IsAbstract && !info.IsInterface && typeof(ICommand).IsAssignableFrom(t);
             });
-            
+
             var allTypes = types.AllTypes();
 
             var mapMethod = typeof(EndpointConvention)
@@ -36,7 +36,7 @@ namespace TwentyTwenty.DomainDriven.MassTransit
         public static Type GetMessageType(this Type handlerType)
         {
             var closedType = handlerType.FindInterfaceThatCloses(typeof(IConsumer<>));
-            return closedType?.GenericTypeArguments.First();        
+            return closedType?.GenericTypeArguments.First();
         }
 
         private static Type FindInterfaceThatCloses(this Type type, Type openType)
