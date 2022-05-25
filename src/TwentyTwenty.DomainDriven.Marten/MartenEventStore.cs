@@ -27,8 +27,8 @@ namespace TwentyTwenty.DomainDriven.Marten
             return new StreamEvents
             {
                 Events = stream.Result?.Select(e => (IEventDescriptor)new MartenEvent(e.Id, e.Version, e.Timestamp.UtcDateTime, e.Data as IDomainEvent)).ToList(),
-                CurrentVersion = state.Result.Version,
-                IsArchived = state.Result.IsArchived,
+                CurrentVersion = state.Result?.Version ?? 0,
+                IsArchived = state.Result?.IsArchived ?? false,
             };
         }
 

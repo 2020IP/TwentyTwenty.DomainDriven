@@ -1,8 +1,8 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using TwentyTwenty.DomainDriven.EventSourcing;
 
 namespace TwentyTwenty.DomainDriven.InMemory
@@ -15,7 +15,7 @@ namespace TwentyTwenty.DomainDriven.InMemory
             public DateTime TimeStamp { get; set; }
             public TId Id { get; }
             public long Version { get; }
-            
+
             public EventDescriptor(TId id, IDomainEvent eventData, long version)
             {
                 Data = eventData;

@@ -18,22 +18,22 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
             _eventPublisher = eventPublisher;
         }
 
-        public virtual async Task<T> GetById<T>(TId id, CancellationToken token = default) 
+        public virtual async Task<T> GetById<T>(TId id, CancellationToken token = default)
             where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
-            var streamEvents = await _eventStore.GetEventsForStream(id, token);            
+            var streamEvents = await _eventStore.GetEventsForStream(id, token);
             return Replay<T>(streamEvents.Events, streamEvents.CurrentVersion);
         }
 
-         public virtual async Task Save<T>(T aggregate, CancellationToken token = default) 
-            where T : class, IEventSourcingAggregateRoot<TId>, new()
+        public virtual async Task Save<T>(T aggregate, CancellationToken token = default)
+           where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
             _eventStore.AppendEvents(aggregate.Id, aggregate.GetUncommittedEvents());
             await _eventStore.CommitEvents(token);
             await PublishEvents(aggregate, token);
         }
 
-        public virtual async Task SaveOptimistic<T>(T aggregate, CancellationToken token = default) 
+        public virtual async Task SaveOptimistic<T>(T aggregate, CancellationToken token = default)
             where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
             _eventStore.AppendEvents(aggregate.Id, aggregate.GetUncommittedEvents(), aggregate.Version);
@@ -65,7 +65,7 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
             await PublishEvents(aggregates, token);
         }
 
-        public virtual async Task Archive<T>(T aggregate, CancellationToken token = default) 
+        public virtual async Task Archive<T>(T aggregate, CancellationToken token = default)
             where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
             await _eventStore.ArchiveStream(aggregate.Id, token);
@@ -94,16 +94,15 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
             }
         }
 
-        private T Replay<T>(IEnumerable<IEventDescriptor> events, long currentVersion) 
+        private T Replay<T>(IEnumerable<IEventDescriptor> events, long currentVersion)
             where T : IEventSourcingAggregateRoot<TId>, new()
         {
-            var aggregate = new T();
-
-            if (!events.Any())
+            if (events is null || !events.Any())
             {
-                throw new AggregateNotFoundException();   
+                throw new AggregateNotFoundException();
             }
 
+            var aggregate = new T();
             aggregate.LoadChangesFromHistory(events.Select(e => e.Data), currentVersion);
             return aggregate;
         }
