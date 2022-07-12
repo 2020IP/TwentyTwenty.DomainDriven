@@ -20,15 +20,18 @@ namespace TwentyTwenty.DomainDriven.Marten
         public async Task<StreamEvents> GetEventsForStream(Guid streamId, CancellationToken token = default)
         {
             var batch = _session.CreateBatchQuery();
-            var stream = batch.Events.FetchStream(streamId);
-            var state = batch.Events.FetchStreamState(streamId);
+            var streamTask = batch.Events.FetchStream(streamId);
+            var stateTask = batch.Events.FetchStreamState(streamId);
             await batch.Execute(token);
+
+            var stream = await streamTask;
+            var state = await stateTask;
 
             return new StreamEvents
             {
-                Events = stream.Result?.Select(e => (IEventDescriptor)new MartenEvent(e.Id, e.Version, e.Timestamp.UtcDateTime, e.Data as IDomainEvent)).ToList(),
-                CurrentVersion = state.Result?.Version ?? 0,
-                IsArchived = state.Result?.IsArchived ?? false,
+                Events = stream?.Select(e => (IEventDescriptor)new MartenEvent(e.Id, e.Version, e.Timestamp.UtcDateTime, e.Data as IDomainEvent)).ToList(),
+                CurrentVersion = state?.Version ?? 0,
+                IsArchived = state?.IsArchived ?? false,
             };
         }
 
