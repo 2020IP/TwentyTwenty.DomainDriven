@@ -57,8 +57,9 @@ namespace TwentyTwenty.DomainDriven.Marten
            =>  _session.SaveChangesAsync(token);
 
         public void Dispose()
-        {
-            _session.Dispose();
-        }
+            => _session.Dispose();
+
+        public ValueTask DisposeAsync()
+            => _session.DisposeAsync();
     }
 }

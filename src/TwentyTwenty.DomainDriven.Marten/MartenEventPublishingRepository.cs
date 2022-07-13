@@ -41,5 +41,11 @@ namespace TwentyTwenty.DomainDriven.Marten
             await _database.SaveChangesAsync(token);
             await PublishEvents(aggregate, token);
         }
+
+        public override void Dispose()
+            => _database.Dispose();
+
+        public override ValueTask DisposeAsync()
+            => _database.DisposeAsync();
     }
 }

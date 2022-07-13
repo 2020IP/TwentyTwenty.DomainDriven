@@ -106,5 +106,11 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
             aggregate.LoadChangesFromHistory(events.Select(e => e.Data), currentVersion);
             return aggregate;
         }
+
+        public void Dispose()
+            => _eventStore.Dispose();
+
+        public ValueTask DisposeAsync()
+            => _eventStore.DisposeAsync();
     }
 }

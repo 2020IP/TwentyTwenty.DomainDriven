@@ -85,5 +85,11 @@ namespace TwentyTwenty.DomainDriven.InMemory
         {
             return Task.CompletedTask;
         }
+
+        public void Dispose()
+        {
+        }
+
+        public ValueTask DisposeAsync() => default;
     }
 }

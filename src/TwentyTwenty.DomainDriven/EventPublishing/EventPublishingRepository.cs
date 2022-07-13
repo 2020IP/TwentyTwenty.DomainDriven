@@ -49,5 +49,11 @@ namespace TwentyTwenty.DomainDriven.Marten
                 await PublishEvents(aggregate, token);
             }
         }
+
+        public virtual void Dispose()
+        {
+        }
+
+        public virtual ValueTask DisposeAsync() => default;
     }
 }

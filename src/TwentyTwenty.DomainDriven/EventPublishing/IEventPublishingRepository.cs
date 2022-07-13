@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace TwentyTwenty.DomainDriven.EventPublishing
 {
-    public interface IEventPublishingRepository<TId>
+    public interface IEventPublishingRepository<TId> : IDisposable, IAsyncDisposable
     {
         Task<T> GetById<T>(TId id, CancellationToken token = default)
             where T : class, IEventPublishingAggregateRoot<TId>, new();
