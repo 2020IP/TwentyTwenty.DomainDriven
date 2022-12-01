@@ -24,5 +24,8 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
 
         Task Archive<T>(T aggregate, CancellationToken token = default)
             where T : class, IEventSourcingAggregateRoot<TId>, new();
+
+        Task Archive<T>(IEnumerable<T> aggregates, CancellationToken token = default)
+            where T : class, IEventSourcingAggregateRoot<TId>, new();
     }
 }
