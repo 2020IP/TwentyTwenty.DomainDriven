@@ -29,7 +29,7 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
            where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
             _eventStore.AppendEvents(aggregate.Id, aggregate.GetUncommittedEvents());
-            await _eventStore.CommitEvents(token);
+            await _eventStore.SaveChanges(token);
             await PublishEvents(aggregate, token);
         }
 
@@ -37,7 +37,7 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
             where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
             _eventStore.AppendEvents(aggregate.Id, aggregate.GetUncommittedEvents(), aggregate.Version);
-            await _eventStore.CommitEvents(token);
+            await _eventStore.SaveChanges(token);
             await PublishEvents(aggregate, token);
         }
 
@@ -49,7 +49,7 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
                 _eventStore.AppendEvents(aggregate.Id, aggregate.GetUncommittedEvents());
             }
 
-            await _eventStore.CommitEvents(token);
+            await _eventStore.SaveChanges(token);
             await PublishEvents(aggregates, token);
         }
 
@@ -61,14 +61,26 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
                 _eventStore.AppendEvents(aggregate.Id, aggregate.GetUncommittedEvents(), aggregate.Version);
             }
 
-            await _eventStore.CommitEvents(token);
+            await _eventStore.SaveChanges(token);
             await PublishEvents(aggregates, token);
         }
 
-        public virtual async Task Archive<T>(T aggregate, CancellationToken token = default)
+        public virtual Task Archive<T>(T aggregate, CancellationToken token = default)
             where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
-            await _eventStore.ArchiveStream(aggregate.Id, token);
+            _eventStore.ArchiveStream(aggregate.Id);
+            return _eventStore.SaveChanges(token);
+        }
+
+        public virtual Task Archive<T>(IEnumerable<T> aggregates, CancellationToken token = default)
+            where T : class, IEventSourcingAggregateRoot<TId>, new()
+        {
+            foreach (var aggregate in aggregates)
+            {
+                _eventStore.ArchiveStream(aggregate.Id);
+            }
+
+            return _eventStore.SaveChanges(token);
         }
 
         protected async Task PublishEvents<T>(T aggregate, CancellationToken token = default)

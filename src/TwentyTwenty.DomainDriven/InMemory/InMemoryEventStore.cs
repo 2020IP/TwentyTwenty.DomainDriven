@@ -76,12 +76,11 @@ namespace TwentyTwenty.DomainDriven.InMemory
             }
         }
 
-        public Task ArchiveStream(TId aggregateId, CancellationToken token = default)
+        public void ArchiveStream(TId aggregateIdt)
         {
-            return Task.CompletedTask;
         }
 
-        public Task CommitEvents(CancellationToken token = default)
+        public Task SaveChanges(CancellationToken token = default)
         {
             return Task.CompletedTask;
         }

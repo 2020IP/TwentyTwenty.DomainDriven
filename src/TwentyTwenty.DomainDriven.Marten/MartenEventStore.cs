@@ -47,13 +47,12 @@ namespace TwentyTwenty.DomainDriven.Marten
             }
         }
 
-        public Task ArchiveStream(Guid streamId, CancellationToken token = default)
+        public void ArchiveStream(Guid streamId)
         {
             _session.Events.ArchiveStream(streamId);
-            return _session.SaveChangesAsync(token);
         }
 
-        public Task CommitEvents(CancellationToken token = default)
+        public Task SaveChanges(CancellationToken token = default)
            =>  _session.SaveChangesAsync(token);
 
         public void Dispose()
