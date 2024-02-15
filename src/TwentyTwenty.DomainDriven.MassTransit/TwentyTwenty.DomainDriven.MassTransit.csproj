@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Description>TwentyTwenty.DomainDriven.MassTransit Class Library</Description>
     <Authors>Jarrod Alexander, Eric Green</Authors>
-    <TargetFrameworks>netstandard2.1</TargetFrameworks>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>TwentyTwenty.DomainDriven.MassTransit</AssemblyName>
     <PackageId>TwentyTwenty.DomainDriven.MassTransit</PackageId>
     <PackageIconUrl>https://avatars3.githubusercontent.com/u/15891935?v=3&amp;s=64</PackageIconUrl>
@@ -17,6 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MassTransit" Version="8.0.12" />
+    <PackageReference Include="MassTransit" Version="8.1.3" />
   </ItemGroup>
 </Project>
