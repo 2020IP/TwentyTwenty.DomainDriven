@@ -37,7 +37,7 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
             where T : class, IEventSourcingAggregateRoot<TId>, new()
         {
             var uncommittedEvents = aggregate.GetUncommittedEvents();
-            _eventStore.AppendEvents(aggregate.Id, uncommittedEvents, aggregate.Version + uncommittedEvents.Count);
+            _eventStore.AppendEvents(aggregate.Id, uncommittedEvents, aggregate.Version);
             await _eventStore.SaveChanges(token);
             await PublishEvents(aggregate, token);
         }
@@ -60,7 +60,7 @@ namespace TwentyTwenty.DomainDriven.EventSourcing
             foreach (var aggregate in aggregates)
             {
                 var uncommittedEvents = aggregate.GetUncommittedEvents();
-                _eventStore.AppendEvents(aggregate.Id, uncommittedEvents, aggregate.Version + uncommittedEvents.Count);
+                _eventStore.AppendEvents(aggregate.Id, uncommittedEvents, aggregate.Version);
             }
 
             await _eventStore.SaveChanges(token);
