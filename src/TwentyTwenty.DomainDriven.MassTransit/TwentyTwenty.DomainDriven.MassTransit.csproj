@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>TwentyTwenty.DomainDriven.MassTransit Class Library</Description>
@@ -17,6 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MassTransit" Version="8.3.6" />
+    <PackageReference Include="MassTransit" Version="9.0.0" />
   </ItemGroup>
 </Project>
