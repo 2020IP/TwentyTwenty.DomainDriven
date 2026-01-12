@@ -1,9 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <Description>TwentyTwenty.DomainDriven.Marten Class Library</Description>
     <Authors>Jarrod Alexander, Eric Green</Authors>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <AssemblyName>TwentyTwenty.DomainDriven.Marten</AssemblyName>
     <PackageId>TwentyTwenty.DomainDriven.Marten</PackageId>
     <PackageIconUrl>https://avatars3.githubusercontent.com/u/15891935?v=3&amp;s=64</PackageIconUrl>
@@ -11,13 +10,10 @@
     <PackageLicenseUrl>https://raw.githubusercontent.com/2020IP/TwentyTwenty.DomainDriven/master/LICENSE</PackageLicenseUrl>
     <VersionPrefix>$(SemVer)</VersionPrefix>
   </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\TwentyTwenty.DomainDriven\TwentyTwenty.DomainDriven.csproj" />
   </ItemGroup>
-
-  <ItemGroup>    
+  <ItemGroup>
     <PackageReference Include="Marten" Version="7.37.3" />
   </ItemGroup>
-
 </Project>
