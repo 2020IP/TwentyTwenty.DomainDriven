@@ -1,4 +1,4 @@
-#tool nuget:?package=GitVersion.CommandLine
+#tool nuget:?package=GitVersion.CommandLine&version=5.12.0
 
 GitVersion versionInfo = null;
 var target = Argument("target", "Default");
