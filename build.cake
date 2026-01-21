@@ -1,4 +1,4 @@
-#tool nuget:?package=GitVersion.CommandLine&version=5.12.0
+#tool nuget:?package=GitVersion.CommandLine
 
 GitVersion versionInfo = null;
 var target = Argument("target", "Default");
@@ -20,7 +20,7 @@ Task("Version")
             UpdateAssemblyInfo = true,
             OutputType = GitVersionOutput.BuildServer
         });
-        versionInfo = GitVersion(new GitVersionSettings{ OutputType = GitVersionOutput.Json });
+        versionInfo = GitVersion(new GitVersionSettings{ OutputType = GitVersionOutput.Json }); 
     });
 
 Task("Restore")
