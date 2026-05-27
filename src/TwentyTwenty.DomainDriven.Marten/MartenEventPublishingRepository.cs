@@ -1,6 +1,7 @@
 using Marten;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TwentyTwenty.DomainDriven.EventPublishing;
@@ -30,9 +31,15 @@ namespace TwentyTwenty.DomainDriven.Marten
 
         public override async Task Save<T>(IEnumerable<T> aggregates, CancellationToken token = default)
         {
-            _database.Store(aggregates);
+            // Persist in a deterministic order (ascending Id) so that concurrent
+            // transactions updating an overlapping set of documents always acquire
+            // their row locks in the same order. Without a consistent order, two
+            // batched upserts touching the same rows in different orders can form a
+            // lock cycle and trigger a PostgreSQL deadlock (SQLState 40P01).
+            var ordered = aggregates.OrderBy(a => a.Id).ToList();
+            _database.Store(ordered);
             await _database.SaveChangesAsync(token);
-            await PublishEvents(aggregates, token);
+            await PublishEvents(ordered, token);
         }
 
         public override async Task Delete<T>(T aggregate, CancellationToken token = default)
