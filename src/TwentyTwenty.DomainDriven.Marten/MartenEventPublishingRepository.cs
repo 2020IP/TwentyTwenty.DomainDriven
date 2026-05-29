@@ -36,8 +36,8 @@ namespace TwentyTwenty.DomainDriven.Marten
             // their row locks in the same order. Without a consistent order, two
             // batched upserts touching the same rows in different orders can form a
             // lock cycle and trigger a PostgreSQL deadlock (SQLState 40P01).
-            var ordered = aggregates.OrderBy(a => a.Id).ToList();
-            _database.Store(ordered.ToArray());
+            var ordered = aggregates.OrderBy(a => a.Id).ToArray();
+            _database.Store(ordered);
             await _database.SaveChangesAsync(token);
             await PublishEvents(ordered, token);
         }
