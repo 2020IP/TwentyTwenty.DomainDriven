@@ -17,6 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-	<PackageReference Include="MassTransit" Version="8.5.8" />
+	<PackageReference Include="MassTransit" Version="8.5.10" />
   </ItemGroup>
 </Project>
