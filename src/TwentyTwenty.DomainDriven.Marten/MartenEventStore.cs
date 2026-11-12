@@ -27,10 +27,18 @@ namespace TwentyTwenty.DomainDriven.Marten
             var stream = await streamTask;
             var state = await stateTask;
 
+            // The two batched queries are separate statements, each with its own READ COMMITTED snapshot.
+            // An append committed between them appears in the stream state but not in the fetched events.
+            // Using that state's version would let an optimistic append succeed against a stale aggregate,
+            // so the version must come from the last event actually replayed.
+            var currentVersion = stream?.Count > 0
+                ? stream[stream.Count - 1].Version
+                : state?.Version ?? 0;
+
             return new StreamEvents
             {
                 Events = stream?.Select(e => (IEventDescriptor)new MartenEvent(e.Id, e.Version, e.Timestamp.UtcDateTime, e.Data as IDomainEvent)).ToList(),
-                CurrentVersion = state?.Version ?? 0,
+                CurrentVersion = currentVersion,
                 IsArchived = state?.IsArchived ?? false,
             };
         }
